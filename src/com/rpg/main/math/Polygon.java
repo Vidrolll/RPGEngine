@@ -17,34 +17,22 @@ public class Polygon {
             edges[i] = vertices[i].sub(vertices[(i+1==vertices.length)?0:i+1]);
 //            edges[i] = vertices[(i+1==vertices.length)?0:i+1].sub(vertices[i]);
         }
-//        directEdges();
+        directEdges();
         fric = new Vector2(1,1);
     }
     public void directEdges() {
         if(edges.length<2) return;
-        Vector2 pE1 = getEdges()[0].perp().norm();
-        Vector2 pE2 = getEdges()[1].perp().norm();
-        Line pL1 = new Line(pE1.getY()/pE1.getX(),getEdges()[0]);
-        Line pL2 = new Line(pE2.getY()/pE2.getX(),getEdges()[1]);
-        Vector2 inter = pL1.getPoint(pL2).norm();
-        System.out.println("---------------");
-//        getEdges()[0].print();
-//        getEdges()[1].print();
-//        pE1.print();
-//        pE2.print();
-//        inter.print();
-//        pE1.norm().print();
-//        pE2.norm().print();
-//        inter.norm().print();
-        for(int i = 0; i < getEdges().length; i++) {
-            if(getEdges()[i].perp().norm().getX()/inter.getX()>=0) {
-                getEdges()[i].perp().norm().print();
-                inter.print();
-                System.out.println("test");
-                for(int j = 0; j < vertices.length; j++) {
-                    edges[j] = edges[j].scale(-1);
+        for(int e = 0; e < getEdges().length; e++) {
+            Vector2 pE1 = getEdges()[e].perp().norm();
+            Vector2 pE2 = getEdges()[(e+1==getEdges().length)?0:e+1].perp().norm();
+            Line pL1 = new Line(pE1.getY()/pE1.getX(),getVertices()[e].sub(edges[e].scale(0.5)));
+            Line pL2 = new Line(pE2.getY()/pE2.getX(),getVertices()[(e+1==getEdges().length)?0:e+1].sub(edges[(e+1==getEdges().length)?0:e+1].scale(0.5)));
+            Vector2 inter = pL1.getPoint(pL2);
+            if(inter == null) continue;
+            if(pE1.getX()/inter.getX()>=0) {
+                for(int i = 0; i < vertices.length; i++) {
+                    edges[i] = edges[i].scale(-1);
                 }
-                return;
             }
         }
     }
@@ -100,25 +88,7 @@ public class Polygon {
         return true;
     }
 
-    public boolean pip(Vector2 point) {
-        boolean odd = false;
-        for (int i = 0, j = getVertices().length - 1; i < getVertices().length; i++) {
-            if (((getVertices()[i].getY() > point.getY()) != (getVertices()[j].getY() > point.getY()))
-                    && (point.getX() < (getVertices()[j].getX() - getVertices()[i].getX()) * (point.getY() - getVertices()[i].getY()) / (getVertices()[j].getY() - getVertices()[i].getY()) + getVertices()[i].getX())) {
-                odd = !odd;
-            }
-            j = i;
-        }
-        return odd;
-    }
-
     public void renderPolygon(Graphics2D g) {
-        Vector2 pE1 = getEdges()[0].perp();
-        Line line = new Line(pE1.getY()/pE1.getX(),getVertices()[0].sub(edges[0].scale(0.5)));
-        g.setColor(Color.RED);
-        g.fillRect((int)getVertices()[0].sub(edges[0].scale(0.5)).getX()-3,(int)getVertices()[0].sub(edges[0].scale(0.5)).getY()-3,5,5);
-        g.setColor(Color.WHITE);
-        g.drawLine(-1000,(int)line.getValue(-1000),1000,(int)line.getValue(1000));
         for(int i = 0; i < getVertices().length; i++) {
             g.setColor(Color.GREEN);
             Vector2 midpoint = getVertices()[(i+1==getVertices().length)?0:i+1].add(getVertices()[i]).scale(0.5);
@@ -130,6 +100,22 @@ public class Polygon {
                     (int)getVertices()[(i+1==getVertices().length)?0:i+1].getX(),
                     (int)getVertices()[(i+1==getVertices().length)?0:i+1].getY());
         }
+    }
+
+    public boolean segmentInPolygon(Segment seg) {
+        for(int e = 0; e < getEdges().length; e++) {
+            Vector2 edge = getEdges()[e];
+            Line edgeLine = new Line(edge.getY()/edge.getX(),getVertices()[e]);
+            Line segLine = new Line(seg.getSlope(),new Vector2(seg.getX1(),seg.getY1()));
+            Vector2 inter = edgeLine.getPoint(segLine);
+            Vector2 bound1 = getVertices()[e];
+            Vector2 bound2 = getVertices()[(e+1==getVertices().length)?0:e+1];
+            Segment polySeg = new Segment((int)bound1.getX(),(int)bound1.getY(),(int)bound2.getX(),(int)bound2.getY());
+            if(Double.isInfinite(edgeLine.getSlope())||Double.isNaN(edgeLine.getSlope())&&
+                    polySeg.pointExists((int)edge.getX())&&seg.pointExists((int)edge.getX())) return true;
+            if(polySeg.pointExists((int)inter.getX())&&seg.pointExists((int)inter.getX())) return true;
+        }
+        return false;
     }
 
     public void moveX(int x) {

@@ -1,16 +1,16 @@
 package com.rpg.tester;
 
 import com.rpg.main.Game;
-import com.rpg.main.math.Line;
-import com.rpg.main.math.LinearMath;
+import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
-import com.rpg.main.math.Vector2;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class Main extends Game {
     Polygon s1,s2,s3,s4;
+    Segment seg;
 
     public Main() {
         System.out.println("Triangle");
@@ -19,7 +19,7 @@ public class Main extends Game {
         s2 = new Polygon(new Vector2(500,500),new Vector2(0,50), new Vector2(0,-50),new Vector2(100,-50),new Vector2(100,50));
         System.out.println("Rectangle");
         s3 = new Polygon(new Vector2(500,700),new Vector2(0,50), new Vector2(0,-50),new Vector2(1000,-50),new Vector2(1000,50));
-        int sides = 5;
+        int sides = 45;
         int size = 100;
         Vector2[] vArr = new Vector2[sides];
         for(int i = 0; i < sides; i++) {
@@ -29,23 +29,31 @@ public class Main extends Game {
         s4 = new Polygon(new Vector2(0,0), vArr);
         System.out.println("Custom Polygon");
         s4.setPos(100,700);
+        seg = new Segment(1920/2,1080/2,0,0);
     }
 
     @Override
     public void update() {
+        if(s2==null) return;
         s2.move(new Vector2(velX,velY).norm().scale(5));
         s2.sat(s1);
         s2.sat(s3);
+        s2.sat(s4);
     }
 
     @Override
     public void draw(Graphics2D g) {
         g.setColor(Color.WHITE);
         //if(s2.sat(s1)) g.setColor(Color.RED);
+        if(s1==null||s2==null||s3==null||s4==null) return;
         s1.renderPolygon(g);
         s2.renderPolygon(g);
         s3.renderPolygon(g);
         s4.renderPolygon(g);
+        g.setColor(Color.WHITE);
+        if(s1.segmentInPolygon(seg)||s2.segmentInPolygon(seg)||s3.segmentInPolygon(seg)||s4.segmentInPolygon(seg))
+            g.setColor(Color.RED);
+        if(seg!=null) g.drawLine(seg.getX1(),seg.getY1(),seg.getX2(),seg.getY2());
     }
 
     int velX=0,velY=0;
@@ -77,6 +85,14 @@ public class Main extends Game {
             if(e.getKeyCode()==KeyEvent.VK_D) keyDown[3] = false;
             if(!(keyDown[0]||keyDown[1])) velY = 0;
             if(!(keyDown[2]||keyDown[3])) velX = 0;
+        }
+    }
+
+    @Override
+    public void input(MouseEvent e, int x, int y) {
+        if(e.getID()==MouseEvent.MOUSE_MOVED) {
+            seg.setX2(x);
+            seg.setY2(y);
         }
     }
 
