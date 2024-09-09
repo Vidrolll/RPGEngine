@@ -1,7 +1,6 @@
 package com.rpg.main.waveFunctionCollapse;
 
 import java.awt.*;
-import java.awt.image.ImageFilter;
 
 public class WFC_Tile {
 
@@ -18,20 +17,29 @@ public class WFC_Tile {
 
         this.symmetrical = symmetrical;
         this.sockets = sockets;
-        this.rotations = 0;
-        renderImage = img;
+        this.renderImage = img;
 
     }
 
+    /*
+    * Set the tile rotation
+    *
+    * @param rot angle in increments of 90 degrees (rot * -90)
+    * */
     public void setRotation(int rot){
 
         this.rotations = rot;
 
     }
 
+    /*
+    * Get the rotation needed to draw image
+    *
+    * @return angle in radians
+    * */
     public double getRotation(){
 
-        return (360 - this.rotations * 90) % 360;
+        return (Math.PI*2 - this.rotations * Math.PI/4) % Math.PI*2;
 
     }
 
@@ -39,12 +47,13 @@ public class WFC_Tile {
     * CCW rotation of a tile
     *
     * @param number of times to rotate tile
+    * @return a rotated instance of WFC_Tile
     * */
     public WFC_Tile rotate(int times){
 
         String[] newSockets = new String[4];
         for (int i = 0; i < 4; i++) {
-            newSockets[i] = this.sockets[i + times % 4];
+            newSockets[i] = this.sockets[(i + times) % 4];
         }
         WFC_Tile rotTile = new WFC_Tile(symmetrical, newSockets, renderImage);
         rotTile.setRotation(times);
