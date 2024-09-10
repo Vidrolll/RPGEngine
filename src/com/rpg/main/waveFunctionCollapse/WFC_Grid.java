@@ -2,13 +2,15 @@ package com.rpg.main.waveFunctionCollapse;
 
 import com.rpg.main.math.Vector2;
 
+import java.io.Serializable;
+
 // Grid to hold Cells
-public class WFC_Grid implements Cloneable{
+public class WFC_Grid implements Cloneable {
 
     public int width, height;
     public int tileSockets;
     private int size;
-    private WFC_Cell[] Cells;
+    public WFC_Cell[] Cells;
     public WFC_Tile[] TileSet;
     /** Class that hold WFC_Cell in a grid
      *
@@ -88,12 +90,27 @@ public class WFC_Grid implements Cloneable{
 
     }
 
+
+    public WFC_Grid copy(){
+
+        return this.clone();
+
+    }
+
     @Override
-    public WFC_Grid clone() {
+    protected WFC_Grid clone() {
 
         try {
 
-            return (WFC_Grid) super.clone();
+            WFC_Grid copy = (WFC_Grid) super.clone();
+
+            for (int i = 0; i < this.size; i++){
+
+                copy.Cells[i] = this.Cells[i].clone();
+
+            }
+
+            return copy;
 
         }
 
@@ -105,4 +122,7 @@ public class WFC_Grid implements Cloneable{
 
     }
 
+    public int getSize() {
+        return this.size;
+    }
 }

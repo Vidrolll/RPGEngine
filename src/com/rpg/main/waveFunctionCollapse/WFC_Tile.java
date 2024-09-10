@@ -20,6 +20,14 @@ public class WFC_Tile {
         this.renderImage = img;
 
     }
+    public WFC_Tile(WFC_Tile tile){
+
+        this.symmetrical = tile.symmetrical;
+        this.sockets = tile.sockets.clone();
+        this.renderImage = tile.renderImage;
+        this.rotations = tile.rotations;
+
+    }
 
     /**
     * Set the tile rotation
@@ -65,6 +73,12 @@ public class WFC_Tile {
         rotTile.setRotation(times);
 
         return rotTile;
+
+    }
+
+    public WFC_Tile copy(){
+
+        return new WFC_Tile(this);
 
     }
 

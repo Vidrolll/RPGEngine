@@ -9,23 +9,69 @@ import jdk.jshell.spi.ExecutionControl;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 // hold the logic behind wave function collapse
 public class WFC {
 
-    public static WFC_Grid collapse() throws ExecutionControl.NotImplementedException {
+    private static int iter = 0;
 
-        throw new ExecutionControl.NotImplementedException("Full collapse function not yet implemented");
+    public static WFC_Grid collapse(WFC_Grid grid) throws WFC_UnableToFinish{
+
+        WFC_Grid gridCopy = grid.copy();
+        boolean collapsed = false;
+        int limit = 100000; // limit so it doesnt loop forever
+        int i = 0;
+
+        while (!collapsed && i < limit){
+
+            try {
+
+                gridCopy = collapseStep(gridCopy);
+
+            }
+            catch(NoTileFitsCell e){
+
+                System.out.println("restart");
+                gridCopy = new WFC_Grid(grid.width, grid.height, grid.tileSockets, grid.TileSet);
+                WFC.calculateNewWFC(gridCopy);
+
+            }
+            if (WFC.isCollapsed(gridCopy)) collapsed = true;
+
+            i++;
+            WFC.iter = i+1;
+        }
+
+        if (!isCollapsed(gridCopy)){
+
+            throw new WFC_UnableToFinish(grid, limit);
+
+        }
+
+        return gridCopy;
+
+    }
+
+    private static boolean isCollapsed(WFC_Grid grid) {
+
+       boolean collapsed = true;
+        for (int i = 0; i < grid.Cells.length; i++){
+
+            collapsed &= grid.Cells[i].isCollapsed();
+
+        }
+
+        return collapsed;
+
 
     }
 
     public static WFC_Grid collapseStep(WFC_Grid grid) throws NoTileFitsCell{
 
         // copy grid
-        WFC_Grid gridCopy = grid.clone();
+        WFC_Grid gridCopy = grid.copy();
 
         // get entropy
         int[] Entropies = new int[grid.width * grid.height];
@@ -58,10 +104,10 @@ public class WFC {
 
         }
 
-        System.out.println(minEntropyIndicies);
+//        System.out.println(minEntropyIndicies);
 
         // pick a cell to collapse
-        Random rng = new Random();
+        Random rng = new Random(WFC.iter);
         if (minEntropyIndicies.size() != 0) {
             int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
             Vector2 gridPos = grid.XYFromIndex(index);
@@ -134,9 +180,14 @@ public class WFC {
 
         }
     }
+    private static void calculateNewWFC(WFC_Grid grid, int[] Entropies){
+
+        calculateNewWFC(grid.copy(), grid, Entropies);
+
+    }
     public static void calculateNewWFC(WFC_Grid grid){
 
-        calculateNewWFC(grid.clone(), grid, new int[grid.height * grid.width]);
+        calculateNewWFC(grid.copy(), grid, new int[grid.height * grid.width]);
 
     }
 
@@ -154,15 +205,12 @@ public class WFC {
         w = areaW / ((float)grid.width+1);
         h = areaH / ((float)grid.height+1);
 
-        // instantiate random object
-        Random rng = new Random(10);
-
         // loop through each grid element
         for (int i = 0; i < grid.width; i++) {
 
             for (int j = 0; j < grid.height; j++) {
 
-                // get a random tile
+                // get tile
                 WFC_Cell cell = grid.getCell(i, j);
                 if (cell.isCollapsed()) {
 

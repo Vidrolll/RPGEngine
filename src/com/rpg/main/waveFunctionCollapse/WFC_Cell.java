@@ -1,7 +1,7 @@
 package com.rpg.main.waveFunctionCollapse;
 
 // Holds data about a cell in the grid
-public class WFC_Cell{
+public class WFC_Cell implements Cloneable{
 
     WFC_Tile[] possibleTiles;
     private boolean collapsed = false;
@@ -87,5 +87,31 @@ public class WFC_Cell{
 
     }
 
+    public WFC_Cell clone() {
 
+        try {
+
+            WFC_Cell copy = (WFC_Cell) super.clone();
+
+            copy.possibleTiles = this.possibleTiles.clone();
+            copy.collapsed = this.collapsed;
+
+            return copy;
+
+        }
+
+        catch (CloneNotSupportedException e){
+
+            return null;
+
+        }
+
+    }
+
+
+    public WFC_Cell copy() {
+
+        return this.clone();
+
+    }
 }
