@@ -18,7 +18,6 @@ public class WFCtest extends Game {
 
     public WFCtest(){
 
-
         // load images
         try {
             tileSprites[0] = ImageIO.read(new File("resources/textures/emptyTile.png"));
@@ -35,7 +34,11 @@ public class WFCtest extends Game {
         tileSet[3] = tileSet[1].rotate(2);
         tileSet[4] = tileSet[1].rotate(3);
 
-        grid = new WFC_Grid(20,20,1, tileSet);
+        grid = new WFC_Grid(2,2,1, tileSet);
+        WFC.calculateNewWFC(grid);
+
+        grid = WFC.collapseStep(grid);
+        grid = WFC.collapseStep(grid);
 
     }
 

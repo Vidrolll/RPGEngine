@@ -4,8 +4,9 @@ package com.rpg.main.waveFunctionCollapse;
 public class WFC_Cell{
 
     WFC_Tile[] possibleTiles;
+    private boolean collapsed = false;
 
-    /*
+    /**
     * Cells are initialized in WFC_Grid
     *
     * @param tileSet get tileSet for grid to initialize possible cells
@@ -16,37 +17,73 @@ public class WFC_Cell{
 
     }
 
+    /**
+     * @return returns the number of possible tiles this cell has, if it is collapsed it returns -1
+     * */
     public int getEntropy(){
 
         return possibleTiles.length;
 
     }
 
-    /*
-    *
-    * @param surroundingCells surrounding cells in URDL order
-    * */
-    public boolean checkSockets(WFC_Cell[] surroundingCells){
+    /**
+     * @return returns whether this cell is collapsed
+     * */
+    public boolean isCollapsed(){
 
-        for (int i = 0; i < 4; i++){
-
-
-
-        }
-
-        return false;
+        return collapsed;
 
     }
 
-    public boolean socketMatch(int direction, int socket){
+    public void setCollapsed(){
 
-        for (int i = 0; i < this.possibleTiles.length; i++){
+        this.collapsed = true;
 
-            WFC_Tile tile = possibleTiles[i];
+    }
+
+    /**
+    *
+    * @param surroundingCells surrounding cells in URDL order
+    * */
+    public boolean[][] checkSockets(WFC_Cell[] surroundingCells){
+
+        boolean[][] out = new boolean[4][];
+
+        for (int i = 0; i < 4; i++){
+
+            out[i] = socketMatch(i, surroundingCells[i]);
 
         }
 
-        return false;
+        return out;
+
+    }
+
+    protected boolean[] socketMatch(int direction, WFC_Cell Cell){
+
+        boolean[] keepPossibility = new boolean[this.getEntropy()];
+
+        // for every possible tile
+        for (int i = 0; i < this.getEntropy(); i++){
+
+            keepPossibility[i] = true;
+            // if not checking against null tile
+            if (Cell != null && Cell.isCollapsed()) {
+
+                // go over evert possible tile in other cell and make sure sockets are the same
+                for (int j = 0; j < Cell.getEntropy(); j++) {
+
+                    WFC_Tile tile = this.possibleTiles[i];
+                    WFC_Tile compareTile = Cell.possibleTiles[j];
+                    keepPossibility[i] ^= (tile.getSocket(direction) != compareTile.getSocket((direction+2)%4));
+
+                }
+
+            }
+
+        }
+
+        return keepPossibility;
 
     }
 

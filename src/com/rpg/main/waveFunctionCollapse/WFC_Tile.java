@@ -8,7 +8,7 @@ public class WFC_Tile {
     public String[] sockets;
     private int rotations = 0;
     public Image renderImage;
-    /*
+    /**
     *
     * @param symmetrical specify whether the tile  is symmetrical
     * @param sockets sockets the tile uses to collapse the wave function in URDL order
@@ -21,7 +21,7 @@ public class WFC_Tile {
 
     }
 
-    /*
+    /**
     * Set the tile rotation
     *
     * @param rot angle in increments of 90 degrees (rot * -90)
@@ -32,7 +32,7 @@ public class WFC_Tile {
 
     }
 
-    /*
+    /**
     * Get the rotation needed to draw image
     *
     * @return angle in radians
@@ -43,10 +43,16 @@ public class WFC_Tile {
 
     }
 
-    /*
+    public String getSocket(int dir){
+
+        return this.sockets[dir];
+
+    }
+
+    /**
     * CCW rotation of a tile
     *
-    * @param number of times to rotate tile
+    * @param times number of times to rotate tile
     * @return a rotated instance of WFC_Tile
     * */
     public WFC_Tile rotate(int times){
