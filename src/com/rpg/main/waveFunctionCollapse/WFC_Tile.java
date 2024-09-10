@@ -76,6 +76,10 @@ public class WFC_Tile {
 
     }
 
+    /**copy this tile
+     *
+     * @return
+     */
     public WFC_Tile copy(){
 
         return new WFC_Tile(this);

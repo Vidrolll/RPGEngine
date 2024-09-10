@@ -59,6 +59,12 @@ public class WFC_Cell implements Cloneable{
 
     }
 
+    /**get which tile(s) this cell could be by checking against another cells possibilities
+     *
+     * @param direction
+     * @param Cell
+     * @return
+     */
     protected boolean[] socketMatch(int direction, WFC_Cell Cell){
 
         boolean[] keepPossibility = new boolean[this.getEntropy()];

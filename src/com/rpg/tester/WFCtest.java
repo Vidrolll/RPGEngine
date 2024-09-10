@@ -16,7 +16,7 @@ public class WFCtest extends Game {
     WFC_Tile[] tileSet = new WFC_Tile[6];
     WFC_Grid grid;
     int WFCCalls = 0;
-    Image[] tileSprites = new Image[5];
+    Image[] tileSprites = new Image[3];
 
     public WFCtest(){
 
@@ -38,7 +38,7 @@ public class WFCtest extends Game {
         tileSet[4] = tileSet[1].rotate(3);
         tileSet[5] = new WFC_Tile(true, new String[]{"1","1","1","1"}, tileSprites[2]);
 
-        grid = new WFC_Grid(50,50,1, tileSet);
+        grid = new WFC_Grid(100,100,1, tileSet);
         WFC.calculateNewWFC(grid);
 
         long start = System.currentTimeMillis();

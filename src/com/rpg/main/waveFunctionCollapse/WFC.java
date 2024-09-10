@@ -17,11 +17,18 @@ public class WFC {
 
     private static int iter = 0;
 
-    public static WFC_Grid collapse(WFC_Grid grid) throws WFC_UnableToFinish{
+    /** takes a WFC_Grid and collapses all cells to a single state
+     * throws exception when it is unable to finish filling the grid in a number of iterations
+     *
+     * @param grid input grid
+     * @param limit number of iteration to limit algorithm to
+     * @return grid output
+     * @throws WFC_UnableToFinish
+     */
+    public static WFC_Grid collapse(WFC_Grid grid, int limit) throws WFC_UnableToFinish{
 
         WFC_Grid gridCopy = grid.copy();
         boolean collapsed = false;
-        int limit = 100000; // limit so it doesnt loop forever
         int i = 0;
 
         while (!collapsed && i < limit){
@@ -31,6 +38,7 @@ public class WFC {
                 gridCopy = collapseStep(gridCopy);
 
             }
+            // if no tile fits in a cell try again
             catch(NoTileFitsCell e){
 
                 System.out.println("restart");
@@ -38,12 +46,14 @@ public class WFC {
                 WFC.calculateNewWFC(gridCopy);
 
             }
+            // if the whole grid is collapsed, exit
             if (WFC.isCollapsed(gridCopy)) collapsed = true;
 
             i++;
             WFC.iter = i+1;
         }
 
+        // if it exits and is no collapsed throw unable to finish exception
         if (!isCollapsed(gridCopy)){
 
             throw new WFC_UnableToFinish(grid, limit);
@@ -51,6 +61,19 @@ public class WFC {
         }
 
         return gridCopy;
+
+    }
+
+    /** takes a WFC_Grid and collapses all cells to a single state
+     * throws exception when it is unable to finish filling the grid in 10000 iterations
+     *
+     * @param grid input grid
+     * @return grid output
+     * @throws WFC_UnableToFinish
+     */
+    public static WFC_Grid collapse(WFC_Grid grid) throws WFC_UnableToFinish{
+
+        return collapse(grid, 10000);
 
     }
 
@@ -68,6 +91,13 @@ public class WFC {
 
     }
 
+    /**performs one iteration of the WFC algorithm
+     * throws No tile fits cell Exception when a cell has no possible tiles
+     *
+     * @param grid input WFC_Grid
+     * @return the modified grid
+     * @throws NoTileFitsCell
+     */
     public static WFC_Grid collapseStep(WFC_Grid grid) throws NoTileFitsCell{
 
         // copy grid
@@ -127,6 +157,13 @@ public class WFC {
 
     }
 
+    /**calculates possible tiles that a grid could be and stores that information in the gridCopy cells
+     * also feeds back entropies of each cell in 1d array
+     *
+     * @param grid input grid
+     * @param gridCopy output grid
+     * @param Entropies entropies list to write to
+     */
     private static void calculateNewWFC(WFC_Grid grid, WFC_Grid gridCopy, int[] Entropies) {
         for (int i = 0; i < grid.width; i++) {
 
@@ -180,11 +217,22 @@ public class WFC {
 
         }
     }
+    /**calculates possible tiles that a grid could be and stores that information in the grid cells
+     * also feeds back entropies of each cell in 1d array
+     *
+     * @param grid input grid
+     * @param Entropies entropies list to write to
+     */
     private static void calculateNewWFC(WFC_Grid grid, int[] Entropies){
 
         calculateNewWFC(grid.copy(), grid, Entropies);
 
     }
+
+    /**calculates possible tiles that a grid could be and stores that information in the grid cells
+     *
+     * @param grid input grid
+     */
     public static void calculateNewWFC(WFC_Grid grid){
 
         calculateNewWFC(grid.copy(), grid, new int[grid.height * grid.width]);
@@ -239,9 +287,11 @@ public class WFC {
 
                 }
 
-                // draw entropy text
-                g.setColor(Color.MAGENTA);
-                g.drawString(String.valueOf(grid.getCell(i, j).getEntropy()), i*w, j*h+h/4);
+                if (!isCollapsed(grid)) {
+                    // draw entropy text
+                    g.setColor(Color.MAGENTA);
+                    g.drawString(String.valueOf(grid.getCell(i, j).getEntropy()), i * w, j * h + h / 4);
+                }
 
             }
 
@@ -249,6 +299,11 @@ public class WFC {
 
     }
 
+    /**draws the grid representation at (0, 0) and with and automatic size
+     *
+     * @param g graphics object
+     * @param grid grid to draw
+     */
     public static void draw(Graphics2D g, WFC_Grid grid){
 
         int smallestDim = Math.min(MainWindow.getSize().height, MainWindow.getSize().width);

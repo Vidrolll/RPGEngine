@@ -38,12 +38,23 @@ public class WFC_Grid implements Cloneable {
 
     }
 
+    /**get the index for a cell in the 1d array
+     *
+     * @param x
+     * @param y
+     * @return index for a cell
+     */
     public int indexFromXY(int x, int y){
 
         return x + y * this.width;
 
     }
 
+    /**get the x and y position for a cell based on an index
+     *
+     * @param index index of the cell
+     * @return Vector2 representing x and y of the cell in the grid
+     */
     public Vector2 XYFromIndex(int index){
 
         int x = index % this.width;
@@ -52,6 +63,12 @@ public class WFC_Grid implements Cloneable {
 
     }
 
+    /**gets a cell based of position in the grid
+     *
+     * @param x
+     * @param y
+     * @return a cell from the grid
+     */
     public WFC_Cell getCell(int x,int y){
 
         int index = indexFromXY(x, y);
@@ -80,6 +97,12 @@ public class WFC_Grid implements Cloneable {
 
     }
 
+    /**gets cells in the cardinal directions from the specified position
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     public WFC_Cell[] getSurrounding(int x, int y){
 
         return new WFC_Cell[]{
@@ -91,6 +114,10 @@ public class WFC_Grid implements Cloneable {
     }
 
 
+    /**clones the object
+     *
+     * @return
+     */
     public WFC_Grid copy(){
 
         return this.clone();
@@ -122,6 +149,10 @@ public class WFC_Grid implements Cloneable {
 
     }
 
+    /**returns the number of elements in this grid
+     *
+     * @return
+     */
     public int getSize() {
         return this.size;
     }
