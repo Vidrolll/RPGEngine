@@ -5,7 +5,6 @@ package com.rpg.main.waveFunctionCollapse;
 
 import com.rpg.main.gui.MainWindow;
 import com.rpg.main.math.Vector2;
-import jdk.jshell.spi.ExecutionControl;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -23,7 +22,6 @@ public class WFC {
      * @param grid input grid
      * @param limit number of iteration to limit algorithm to
      * @return grid output
-     * @throws WFC_UnableToFinish
      */
     public static WFC_Grid collapse(WFC_Grid grid, int limit) throws WFC_UnableToFinish{
 
@@ -69,7 +67,6 @@ public class WFC {
      *
      * @param grid input grid
      * @return grid output
-     * @throws WFC_UnableToFinish
      */
     public static WFC_Grid collapse(WFC_Grid grid) throws WFC_UnableToFinish{
 
@@ -96,7 +93,6 @@ public class WFC {
      *
      * @param grid input WFC_Grid
      * @return the modified grid
-     * @throws NoTileFitsCell
      */
     public static WFC_Grid collapseStep(WFC_Grid grid) throws NoTileFitsCell{
 
@@ -111,7 +107,7 @@ public class WFC {
 
         // find minimum entropy and which cells have minimum entropy
         int minEntropy = grid.TileSet.length + 1;
-        List<Integer> minEntropyIndicies = new ArrayList<Integer>();
+        List<Integer> minEntropyIndicies = new ArrayList<>();
 
         for (int i = 0; i < Entropies.length; i++){
 //            System.out.println(i + ": " + Entropies[i] + "  " + minEntropy);
@@ -138,7 +134,7 @@ public class WFC {
 
         // pick a cell to collapse
         Random rng = new Random(WFC.iter);
-        if (minEntropyIndicies.size() != 0) {
+        if (!minEntropyIndicies.isEmpty()) {
             int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
             Vector2 gridPos = grid.XYFromIndex(index);
 
@@ -266,12 +262,8 @@ public class WFC {
 
                     // get its image and find the width and height (uses ImageObserver... whatever that is)
                     Image image = tile.renderImage;
-                    double imgw = image.getWidth((img, infoflags, x1, y1, width, height) -> {
-                        return true;
-                    });
-                    double imgh = image.getHeight((img, infoflags, x1, y1, width, height) -> {
-                        return true;
-                    });
+                    double imgw = image.getWidth((img, infoflags, x1, y1, width, height) -> true);
+                    double imgh = image.getHeight((img, infoflags, x1, y1, width, height) -> true);
 
                     // get image rotation
                     double theta = tile.getRotation();
@@ -281,9 +273,7 @@ public class WFC {
                     trans.rotate(theta, x + imgw / 2, y + imgh / 2);
 
                     // draw image
-                    g.drawImage(tile.renderImage, trans, (img, infoflags, x1, y1, width, height) -> {
-                        return true;
-                    });
+                    g.drawImage(tile.renderImage, trans, (img, infoflags, x1, y1, width, height) -> true);
 
                 }
 

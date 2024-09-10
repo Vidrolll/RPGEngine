@@ -2,14 +2,12 @@ package com.rpg.main.waveFunctionCollapse;
 
 import com.rpg.main.math.Vector2;
 
-import java.io.Serializable;
-
 // Grid to hold Cells
 public class WFC_Grid implements Cloneable {
 
-    public int width, height;
+    public final int width, height;
     public int tileSockets;
-    private int size;
+    private final int size;
     public WFC_Cell[] Cells;
     public WFC_Tile[] TileSet;
     /** Class that hold WFC_Cell in a grid
@@ -40,8 +38,6 @@ public class WFC_Grid implements Cloneable {
 
     /**get the index for a cell in the 1d array
      *
-     * @param x
-     * @param y
      * @return index for a cell
      */
     public int indexFromXY(int x, int y){
@@ -65,16 +61,13 @@ public class WFC_Grid implements Cloneable {
 
     /**gets a cell based of position in the grid
      *
-     * @param x
-     * @param y
      * @return a cell from the grid
      */
     public WFC_Cell getCell(int x,int y){
 
         int index = indexFromXY(x, y);
         if (index >= 0 && index < this.size) {
-            WFC_Cell cell = this.Cells[index];
-            return cell;
+            return this.Cells[index];
         }
         else {
 
@@ -99,9 +92,7 @@ public class WFC_Grid implements Cloneable {
 
     /**gets cells in the cardinal directions from the specified position
      *
-     * @param x
-     * @param y
-     * @return
+     * @return returns an array of cells
      */
     public WFC_Cell[] getSurrounding(int x, int y){
 
@@ -116,7 +107,7 @@ public class WFC_Grid implements Cloneable {
 
     /**clones the object
      *
-     * @return
+     * @return the clone
      */
     public WFC_Grid copy(){
 
@@ -125,7 +116,7 @@ public class WFC_Grid implements Cloneable {
     }
 
     @Override
-    protected WFC_Grid clone() {
+    protected WFC_Grid clone(){
 
         try {
 
@@ -149,9 +140,9 @@ public class WFC_Grid implements Cloneable {
 
     }
 
-    /**returns the number of elements in this grid
+    /**gets the number of elements in this grid
      *
-     * @return
+     * @return number of elements in this grid
      */
     public int getSize() {
         return this.size;

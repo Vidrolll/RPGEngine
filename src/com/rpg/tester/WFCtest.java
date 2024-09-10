@@ -1,7 +1,6 @@
 package com.rpg.tester;
 
 import com.rpg.main.Game;
-import com.rpg.main.gui.MainWindow;
 import com.rpg.main.waveFunctionCollapse.WFC;
 import com.rpg.main.waveFunctionCollapse.WFC_Grid;
 import com.rpg.main.waveFunctionCollapse.WFC_Tile;
@@ -15,7 +14,6 @@ public class WFCtest extends Game {
 
     WFC_Tile[] tileSet = new WFC_Tile[6];
     WFC_Grid grid;
-    int WFCCalls = 0;
     Image[] tileSprites = new Image[3];
 
     public WFCtest(){
@@ -54,11 +52,6 @@ public class WFCtest extends Game {
 
         // draw grid
         WFC.draw(g, grid);
-
-//        WFCCalls++;
-//        grid = WFC.collapseStep(grid);
-//
-//        g.drawString(String.valueOf(WFCCalls),MainWindow.getSize().width/4*3,100);
 
     }
 
