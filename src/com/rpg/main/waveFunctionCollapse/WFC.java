@@ -22,7 +22,7 @@ public class WFC {
 
     }
 
-    public static WFC_Grid collapseStep(WFC_Grid grid){
+    public static WFC_Grid collapseStep(WFC_Grid grid) throws NoTileFitsCell{
 
         // copy grid
         WFC_Grid gridCopy = grid.clone();
@@ -38,16 +38,19 @@ public class WFC {
         List<Integer> minEntropyIndicies = new ArrayList<Integer>();
 
         for (int i = 0; i < Entropies.length; i++){
-            System.out.println(Entropies[i] + "  " + minEntropy);
+//            System.out.println(i + ": " + Entropies[i] + "  " + minEntropy);
 
-            if (Entropies[i] < minEntropy && Entropies[i] != 1){
+            Vector2 cellPos = grid.XYFromIndex(i);
+            WFC_Cell cell = gridCopy.getCell((int)cellPos.getX(), (int)cellPos.getY());
+
+            if (Entropies[i] < minEntropy && !cell.isCollapsed()) {
 
                 minEntropy = Entropies[i];
                 minEntropyIndicies.clear();
                 minEntropyIndicies.add(i);
 
             }
-            else if (Entropies[i] == minEntropy){
+            else if (Entropies[i] == minEntropy && !cell.isCollapsed()){
 
                 minEntropyIndicies.add(i);
 
@@ -59,15 +62,18 @@ public class WFC {
 
         // pick a cell to collapse
         Random rng = new Random();
-        int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
-        Vector2 gridPos = grid.XYFromIndex(index);
+        if (minEntropyIndicies.size() != 0) {
+            int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
+            Vector2 gridPos = grid.XYFromIndex(index);
 
-        // collapse that cell
-        WFC_Cell cell = gridCopy.getCell((int)gridPos.getX(), (int)gridPos.getY());
-        WFC_Tile[] possibleTiles = cell.possibleTiles;
-        cell.possibleTiles = new WFC_Tile[]{possibleTiles[rng.nextInt(possibleTiles.length)]};
-        cell.setCollapsed();
-        gridCopy.changeCell((int)gridPos.getX(), (int)gridPos.getY(), cell);
+            // collapse that cell
+            WFC_Cell cell = gridCopy.getCell((int) gridPos.getX(), (int) gridPos.getY());
+            WFC_Tile[] possibleTiles = cell.possibleTiles;
+            if (possibleTiles.length == 0) throw new NoTileFitsCell("no tile fits in cell: " + grid.indexFromXY((int) gridPos.getX(), (int) gridPos.getY()));
+            cell.possibleTiles = new WFC_Tile[]{possibleTiles[rng.nextInt(possibleTiles.length)]};
+            cell.setCollapsed();
+            gridCopy.changeCell((int) gridPos.getX(), (int) gridPos.getY(), cell);
+        }
 
         calculateNewWFC(gridCopy);
 
@@ -115,9 +121,9 @@ public class WFC {
 
                 }
 
-                System.out.println(cell.possibleTiles.length);
-                System.out.println(newPossibilities.length);
-                System.out.print("---\n");
+//                System.out.println(cell.possibleTiles.length);
+//                System.out.println(newPossibilities.length);
+//                System.out.print("---\n");
                 cell.possibleTiles = newPossibilities;
                 gridCopy.changeCell(i, j, cell);
 
