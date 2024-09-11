@@ -4,6 +4,10 @@ import com.rpg.main.Game;
 
 import java.awt.event.*;
 
+/**
+ * All input feeds into the input functions of the Game class, this class should not be utilized outside of that context.
+ * Any input handled should involve an override of the Game class input functions.
+ */
 public class InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, FocusListener {
     Game main;
 
