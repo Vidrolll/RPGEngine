@@ -6,7 +6,11 @@ import com.rpg.main.waveFunctionCollapse.WFC_Grid;
 import com.rpg.main.waveFunctionCollapse.WFC_Tile;
 
 import javax.imageio.ImageIO;
+import javax.swing.plaf.synth.Region;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -55,6 +59,24 @@ public class WFCtest extends Game {
 
         // draw grid
         WFC.draw(g, grid);
+
+    }
+
+
+    @Override
+    public void update() {
+
+    }
+    @Override
+    public void input(MouseEvent e, int x, int y) {
+
+    }
+    @Override
+    public void input(FocusEvent e) {
+
+    }
+    @Override
+    public void input(KeyEvent e) {
 
     }
 

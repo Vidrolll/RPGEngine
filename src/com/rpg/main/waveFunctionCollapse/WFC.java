@@ -4,7 +4,6 @@ package com.rpg.main.waveFunctionCollapse;
 // https://github.com/mxgmn/WaveFunctionCollapse
 
 import com.rpg.main.gui.MainWindow;
-import com.rpg.main.math.Vector2;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -110,7 +109,7 @@ public class WFC {
         for (int i = 0; i < Entropies.length; i++){
 //            System.out.println(i + ": " + Entropies[i] + "  " + minEntropy);
 
-            Vector2 cellPos = grid.XYFromIndex(i);
+            com.rpg.main.math.Vector cellPos = grid.XYFromIndex(i);
             WFC_Cell cell = gridCopy.getCell((int)cellPos.getX(), (int)cellPos.getY());
 
             if (Entropies[i] < minEntropy && !cell.isCollapsed()) {
@@ -134,7 +133,7 @@ public class WFC {
         Random rng = new Random();
         if (!minEntropyIndicies.isEmpty()) {
             int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
-            Vector2 gridPos = grid.XYFromIndex(index);
+            com.rpg.main.math.Vector gridPos = grid.XYFromIndex(index);
 
             // collapse that cell
             WFC_Cell cell = gridCopy.getCell((int) gridPos.getX(), (int) gridPos.getY());
