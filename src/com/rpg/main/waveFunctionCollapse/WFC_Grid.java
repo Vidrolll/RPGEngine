@@ -2,6 +2,8 @@ package com.rpg.main.waveFunctionCollapse;
 
 import com.rpg.main.math.Vector2;
 
+import java.util.Objects;
+
 // Grid to hold Cells
 public class WFC_Grid implements Cloneable {
 
@@ -10,6 +12,8 @@ public class WFC_Grid implements Cloneable {
     private final int size;
     public WFC_Cell[] Cells;
     public WFC_Tile[] TileSet;
+    private boolean canBeDrawn;
+    private boolean collapsed = false;
     /** Class that hold WFC_Cell in a grid
      *
      * @param w width of grid
@@ -33,6 +37,70 @@ public class WFC_Grid implements Cloneable {
             this.Cells[i] = new WFC_Cell(this.TileSet);
 
         }
+
+        this.canBeDrawn = true;
+        // determine whether this grid can be drawn
+        for (int i = 0; i < this.TileSet.length; i++){
+
+            if (!Objects.isNull(this.TileSet[i])){
+
+                if (!this.TileSet[i].canRender()){
+
+                    this.canBeDrawn = false;
+                    break;
+
+                }
+
+            }
+
+        }
+
+    }
+
+    public boolean CanBeDrawn(){
+
+        return this.canBeDrawn;
+
+    }
+
+    /**get the ids of tiles and returns them as an array
+     *
+     * @return returns null if the grid isn't collapsed
+     */
+    public int[] getIdGrid1D(){
+
+        if (!this.collapsed) return null;
+
+        int[] ret = new int[this.size];
+        for (int i = 0; i < this.size; i++){
+
+            ret[i] = this.Cells[i].possibleTiles[0].getId();
+
+        }
+        return ret;
+
+    }
+
+    /**get the ids of tiles and returns them as a 2d array
+     *
+     * @return returns null if the grid isn't collapsed
+     */
+    public int[][] getIdGrid2D(){
+
+        if (!this.collapsed) return null;
+
+        int[][] ret = new int[this.height][this.width];
+        for (int i = 0; i < this.height; i++){
+
+            for (int j = 0; j < this.width; j++){
+
+                ret[i][j] = this.getCell(j, i).possibleTiles[0].getId();
+
+            }
+
+        }
+
+        return ret;
 
     }
 
@@ -104,6 +172,13 @@ public class WFC_Grid implements Cloneable {
 
     }
 
+    /**
+     * sets the state of the grid to collapsed
+     * DOES NOT CHECK WHETHER THAT IS TRUE
+     */
+    public void makeCollapsed() {
+        this.collapsed = true;
+    }
 
     /**clones the object
      *

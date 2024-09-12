@@ -14,8 +14,6 @@ import java.util.List;
 // hold the logic behind wave function collapse
 public class WFC {
 
-    private static int iter = 0;
-
     /** takes a WFC_Grid and collapses all cells to a single state
      * throws exception when it is unable to finish filling the grid in a number of iterations
      *
@@ -48,7 +46,6 @@ public class WFC {
             if (WFC.isCollapsed(gridCopy)) collapsed = true;
 
             i++;
-            WFC.iter = i+1;
         }
 
         // if it exits and is no collapsed throw unable to finish exception
@@ -58,6 +55,7 @@ public class WFC {
 
         }
 
+        gridCopy.makeCollapsed();
         return gridCopy;
 
     }
@@ -133,7 +131,7 @@ public class WFC {
 //        System.out.println(minEntropyIndicies);
 
         // pick a cell to collapse
-        Random rng = new Random(WFC.iter);
+        Random rng = new Random();
         if (!minEntropyIndicies.isEmpty()) {
             int index = minEntropyIndicies.get(rng.nextInt(minEntropyIndicies.size()));
             Vector2 gridPos = grid.XYFromIndex(index);
@@ -244,6 +242,8 @@ public class WFC {
     * @param areaH height to draw the whole grid
     * */
     public static void draw(Graphics2D g, WFC_Grid grid, int x, int y, int areaW, int areaH){
+
+        if(!grid.CanBeDrawn()) return;
 
         float w, h; // width and height of drawn cells, respectively
         w = areaW / ((float)grid.width+1);

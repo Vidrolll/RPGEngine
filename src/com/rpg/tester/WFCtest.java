@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 public class WFCtest extends Game {
 
@@ -29,19 +30,21 @@ public class WFCtest extends Game {
         }
 
         // initialize tileset
-        tileSet[0] = new WFC_Tile(true, new String[]{"0", "0", "0", "0"}, tileSprites[0]);
-        tileSet[1] = new WFC_Tile(true, new String[]{"1", "1", "0", "1"}, tileSprites[1]);
-        tileSet[2] = tileSet[1].rotate(1);
-        tileSet[3] = tileSet[1].rotate(2);
-        tileSet[4] = tileSet[1].rotate(3);
-        tileSet[5] = new WFC_Tile(true, new String[]{"1","1","1","1"}, tileSprites[2]);
+        tileSet[0] = new WFC_Tile(true, new String[]{"0", "0", "0", "0"},0 , tileSprites[0]);
+        tileSet[1] = new WFC_Tile(true, new String[]{"1", "1", "0", "1"},1, tileSprites[1]);
+        tileSet[2] = tileSet[1].rotate(1, 2);
+        tileSet[3] = tileSet[1].rotate(2, 3);
+        tileSet[4] = tileSet[1].rotate(3, 4);
+        tileSet[5] = new WFC_Tile(true, new String[]{"1","1","1","1"}, 5, tileSprites[2]);
 
-        grid = new WFC_Grid(100,100,1, tileSet);
+        grid = new WFC_Grid(10,10,1, tileSet);
         WFC.calculateNewWFC(grid);
 
         long start = System.currentTimeMillis();
         grid = WFC.collapse(grid);
         long end = System.currentTimeMillis();
+
+        System.out.println(Arrays.toString(grid.getIdGrid1D()));
 
         System.out.println("grid with "+grid.getSize()+" elements generated in " + (end-start) +"ms");
 
