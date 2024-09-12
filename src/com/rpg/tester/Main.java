@@ -5,6 +5,7 @@ import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
 
 import java.awt.*;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -14,19 +15,19 @@ public class Main extends Game {
 
     public Main() {
         System.out.println("Triangle");
-        s1 = new Polygon(new Vector2(300,200),new Vector2(0,0),new Vector2(50,300),new Vector2(100,-50));
+        s1 = new Polygon(new Vector(300,200),new Vector(0,0),new Vector(50,300),new Vector(100,-50));
         System.out.println("Square");
-        s2 = new Polygon(new Vector2(500,500),new Vector2(0,50), new Vector2(0,-50),new Vector2(100,-50),new Vector2(100,50));
+        s2 = new Polygon(new Vector(500,500),new Vector(0,50), new Vector(0,-50),new Vector(100,-50),new Vector(100,50));
         System.out.println("Rectangle");
-        s3 = new Polygon(new Vector2(500,700),new Vector2(0,50), new Vector2(0,-50),new Vector2(1000,-50),new Vector2(1000,50));
-        int sides = 45;
+        s3 = new Polygon(new Vector(500,700),new Vector(0,50), new Vector(0,-50),new Vector(1000,-50),new Vector(1000,50));
+        int sides = 5;
         int size = 100;
-        Vector2[] vArr = new Vector2[sides];
+        Vector[] vArr = new Vector[sides];
         for(int i = 0; i < sides; i++) {
             double theta = 2*Math.PI/sides*i;
-            vArr[i] = new Vector2(size*Math.cos(theta),size*Math.sin(theta));
+            vArr[i] = new Vector(size*(float)Math.cos(theta),size*(float)Math.sin(theta));
         }
-        s4 = new Polygon(new Vector2(0,0), vArr);
+        s4 = new Polygon(new Vector(0,0), vArr);
         System.out.println("Custom Polygon");
         s4.setPos(100,700);
         seg = new Segment(1920/2,1080/2,0,0);
@@ -35,10 +36,11 @@ public class Main extends Game {
     @Override
     public void update() {
         if(s2==null) return;
-        s2.move(new Vector2(velX,velY).norm().scale(5));
-        s2.sat(s1);
-        s2.sat(s3);
-        s2.sat(s4);
+        s2.move(new Vector(velX,velY));
+        velY++;
+        if(s2.sat(s1)) velY = 0;
+        if(s2.sat(s3)) velY = 0;
+        if(s2.sat(s4)) velY = 0;
     }
 
     @Override
@@ -61,14 +63,6 @@ public class Main extends Game {
     @Override
     public void input(KeyEvent e) {
         if(e.getID()==KeyEvent.KEY_PRESSED) {
-            if(e.getKeyCode()==KeyEvent.VK_W) {
-                keyDown[0] = true;
-                velY = -5;
-            }
-            if(e.getKeyCode()==KeyEvent.VK_S) {
-                keyDown[1] = true;
-                velY = 5;
-            }
             if(e.getKeyCode()==KeyEvent.VK_A) {
                 keyDown[2] = true;
                 velX = -5;
@@ -77,13 +71,11 @@ public class Main extends Game {
                 keyDown[3] = true;
                 velX = 5;
             }
+            if(e.getKeyCode()==KeyEvent.VK_SPACE) velY = -20;
         }
         if(e.getID()==KeyEvent.KEY_RELEASED) {
-            if(e.getKeyCode()==KeyEvent.VK_W) keyDown[0] = false;
-            if(e.getKeyCode()==KeyEvent.VK_S) keyDown[1] = false;
             if(e.getKeyCode()==KeyEvent.VK_A) keyDown[2] = false;
             if(e.getKeyCode()==KeyEvent.VK_D) keyDown[3] = false;
-            if(!(keyDown[0]||keyDown[1])) velY = 0;
             if(!(keyDown[2]||keyDown[3])) velX = 0;
         }
     }
@@ -95,6 +87,9 @@ public class Main extends Game {
             seg.setY2(y);
         }
     }
+
+    @Override
+    public void input(FocusEvent e) {}
 
     public static void main(String[] args) {
         new Main();
