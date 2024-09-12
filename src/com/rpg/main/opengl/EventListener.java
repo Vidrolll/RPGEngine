@@ -70,6 +70,9 @@ public class EventListener implements GLEventListener {
 
         alDistanceModel(AL_INVERSE_DISTANCE);
 
+        AL10.alListener3f(AL10.AL_POSITION,0,0,0);
+        AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
+
         assert alCapabilities.OpenAL10 : "Audio library not supported.";
     }
 }

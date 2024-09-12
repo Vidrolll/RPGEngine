@@ -17,4 +17,7 @@ public class Graphics {
         gl.glEnd();
         gl.glFlush();
     }
+    public static void drawImg() {
+
+    }
 }

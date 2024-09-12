@@ -8,13 +8,14 @@ import com.rpg.main.Game;
 import com.rpg.main.audio.Sound;
 import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
+import com.rpg.main.util.Assets;
 import org.lwjgl.openal.AL10;
 
 public class Main extends Game {
     Polygon s1,s2,s3,s4;
 
-    Sound sound = new Sound("resources/sounds/entrance2.ogg", true);
     public Main() {
+        Assets.initialize();
         System.out.println("Triangle");
         s1 = new Polygon(new Vector(300,200),new Vector(0,0),new Vector(50,300),new Vector(100,-50));
         System.out.println("Square");
@@ -36,7 +37,7 @@ public class Main extends Game {
                 {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
         }));
         AL10.alListener3f(AL10.AL_POSITION,0,0,0);
-        sound.play();
+        Assets.getSound("entrance1").play();
     }
 
     @Override
@@ -93,8 +94,8 @@ public class Main extends Game {
 
     @Override
     public void input(MouseEvent e) {
-        if(sound==null) return;
-        sound.setPan((e.getX()/960.0f)-1.0f);
+        if(Assets.getSound("entrance1")==null) return;
+        Assets.getSound("entrance1").setPan((e.getX()/960.0f)-1.0f);
     }
 
     int velX=0,velY=0;
