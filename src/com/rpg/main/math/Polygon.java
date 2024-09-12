@@ -11,6 +11,8 @@ public class Polygon {
     Vector[] edges;
     Vector pos;
 
+    Matrix transform;
+
     //The solidity of the polygon, used for collisions.
     boolean solid = true;
 
@@ -26,11 +28,19 @@ public class Polygon {
      * @param vertices (Vector[]) A list of vertices to build the polygon.
      */
     public Polygon(Vector pos, Vector...vertices) {
+        transform = new Matrix(new float[][]{
+                {(float)Math.cos(Math.toRadians(0)),(float)-Math.sin(Math.toRadians(0))},
+                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
+        });
         this.vertices = vertices;
         this.pos = pos;
-        edges = new Vector[vertices.length];
-        for(int i = 0; i < vertices.length; i++)
-            edges[i] = vertices[i].sub(vertices[(i+1==vertices.length)?0:i+1]);
+        Vector cent = getCenter();
+        for(int i = 0; i < vertices.length; i++) {
+            vertices[i] = vertices[i].sub(cent);
+        }
+        edges = new Vector[getVertices().length];
+        for(int i = 0; i < getVertices().length; i++)
+            edges[i] = getVertices()[i].sub(getVertices()[(i+1==getVertices().length)?0:i+1]);
         directEdges();
         fric = new Vector(1,1);
     }
@@ -42,15 +52,24 @@ public class Polygon {
     public void directEdges() {
         if(edges.length<2) return;
         for(int e = 0; e < getEdges().length; e++) {
-            Vector pE1 = getEdges()[e].perp().norm();
-            Vector pE2 = getEdges()[(e+1==getEdges().length)?0:e+1].perp().norm();
-            Line pL1 = new Line(pE1.getY()/pE1.getX(),getVertices()[e].sub(edges[e].scale(0.5f)));
-            Line pL2 = new Line(pE2.getY()/pE2.getX(),getVertices()[(e+1==getEdges().length)?0:e+1].sub(edges[(e+1==getEdges().length)?0:e+1].scale(0.5f)));
-            Vector inter = pL1.getPoint(pL2);
-            if(inter == null) continue;
-            if(pE1.getX()/inter.getX()>=0) {
-                for(int i = 0; i < vertices.length; i++) {
-                    edges[i] = edges[i].scale(-1);
+            for(int e2 = 0; e2 < getEdges().length; e2++) {
+                if(e2==e) continue;
+                Vector midpoint1 = getVertices()[e].sub(getEdges()[e].scale(0.5f));
+                Vector midpoint2 = getVertices()[e2].sub(getEdges()[e2].scale(0.5f));
+                Vector pE1 = getEdges()[e].perp().norm().scale(9999).add(midpoint1);
+                Vector pE2 = getEdges()[e2].perp().norm().scale(9999).add(midpoint2);
+                Segment s1 = new Segment((int)midpoint1.getX(),(int)midpoint1.getY(),(int)pE1.getX(),(int)pE1.getY());
+                Segment s2 = new Segment((int)midpoint2.getX(),(int)midpoint2.getY(),(int)pE2.getX(),(int)pE2.getY());
+                if(s1.intersect(s2) != null) {
+                    System.out.println("test");
+                    for(int i = 0; i < vertices.length/2; i++) {
+                       Vector tempVec = vertices[i];
+                       vertices[i] = vertices[vertices.length-(i+1)];
+                       vertices[vertices.length-(i+1)] = tempVec;
+                    }
+                    for(int i = 0; i < getVertices().length; i++)
+                        edges[i] = getVertices()[i].sub(getVertices()[(i+1==getVertices().length)?0:i+1]);
+                    return;
                 }
             }
         }
@@ -62,7 +81,8 @@ public class Polygon {
      */
     public Vector[] getVertices() {
         Vector[] v = new Vector[vertices.length];
-        for(int i = 0; i < v.length; i++) v[i] = vertices[i].add(pos);
+//        for(int i = 0; i < v.length; i++) v[i] = vertices[i].add(pos);
+        for(int i = 0; i < v.length; i++) v[i] = transform.mul(vertices[i]).add(pos);
         return v;
     }
 
@@ -73,8 +93,8 @@ public class Polygon {
     public Vector getCenter() {
         int x=0,y=0;
         for(int i = 0; i < getVertices().length; i++) {
-            x += (int) getVertices()[i].getX();
-            y += (int) getVertices()[i].getY();
+            x += (int) getVertices()[i].sub(pos).getX();
+            y += (int) getVertices()[i].sub(pos).getY();
         }
         return new Vector((float) x /getVertices().length, (float) y /getVertices().length);
     }
@@ -120,10 +140,8 @@ public class Polygon {
                 if(distance<minimumTranslation) minimumTranslation = distance;
             }
         }
-        if(getSolid()&&poly.getSolid()) {
+        if(getSolid()&&poly.getSolid())
             move(minimumTranslationVector);
-            return false;
-        }
         return true;
     }
 
@@ -134,7 +152,7 @@ public class Polygon {
     public void renderPolygon(Graphics2D g) {
         for(int i = 0; i < getVertices().length; i++) {
             g.setColor(Color.GREEN);
-            Vector midpoint = getVertices()[(i+1==getVertices().length)?0:i+1].add(getVertices()[i]).scale(0.5f);
+            Vector midpoint = getVertices()[i].sub(getEdges()[i].scale(0.5f));
             Vector normal = getEdges()[i].perp().norm().scale(50).add(midpoint);;
             g.drawLine((int)normal.getX(),(int)normal.getY(),(int)midpoint.getX(),(int)midpoint.getY());
             g.setColor(Color.WHITE);
@@ -152,15 +170,10 @@ public class Polygon {
      */
     public boolean segmentInPolygon(Segment seg) {
         for(int e = 0; e < getEdges().length; e++) {
-            Vector edge = getEdges()[e];
-            Line edgeLine = new Line(edge.getY()/edge.getX(),getVertices()[e]);
-            Line segLine = new Line(seg.getSlope(),new Vector(seg.getX1(),seg.getY1()));
-            Vector inter = edgeLine.getPoint(segLine);
-            if(inter==null) return false;
             Vector bound1 = getVertices()[e];
             Vector bound2 = getVertices()[(e+1==getVertices().length)?0:e+1];
             Segment polySeg = new Segment((int)bound1.getX(),(int)bound1.getY(),(int)bound2.getX(),(int)bound2.getY());
-            if(polySeg.pointExists(inter)&&seg.pointExists(inter)) return true;
+            if(polySeg.intersect(seg)!=null) return true;
         }
         return false;
     }
@@ -213,6 +226,16 @@ public class Polygon {
      */
     public void setPos(int x, int y) {
         pos = new Vector(x,y);
+    }
+
+    /**
+     * Sets the transformation matrix to the inputted matrix.
+     * @param transform (Matrix) The inputted transformation matrix.
+     */
+    public void setTransform(Matrix transform) {
+        this.transform = transform;
+        for(int i = 0; i < getVertices().length; i++)
+            edges[i] = getVertices()[i].sub(getVertices()[(i+1==getVertices().length)?0:i+1]);
     }
 
     //Experimental function, currently unused.

@@ -28,7 +28,8 @@ public class Segment {
         Line l1 = new Line(getSlope(),new Vector(x1,y1));
         Line l2 = new Line(seg.getSlope(),new Vector(seg.x1,seg.y1));
         Vector pos = l1.getPoint(l2);
-        if(pointExists((int)pos.getX())) return pos;
+        if(pos==null) return null;
+        if(pointExists(pos)&&seg.pointExists(pos)) return pos;
         return null;
     }
 
@@ -45,7 +46,7 @@ public class Segment {
      * @param x (int) The x value to test for.
      * @return (boolean) Whether the inputted x value exists in the segment.
      */
-    public boolean pointExists(int x) {
+    public boolean pointExists(float x) {
         return x >= Math.min(x1,x2) && x <= Math.max(x1,x2);
     }
     /**
@@ -55,8 +56,10 @@ public class Segment {
      * @return (boolean) Whether the inputted Vector exists in the segment.
      */
     public boolean pointExists(Vector vec) {
-        Line line = new Line(getSlope(),new Vector(x1,y1));
-        return pointExists((int)vec.getX())&&yExists((int)vec.getY())&&(line.getValue(vec.getX())==vec.getY());
+        if(!yExists(vec.getY())||!pointExists(vec.getX())) return false;
+        if(getSlope()==0) return vec.getY()==y1;
+        if(Float.isInfinite(getSlope())) return vec.getX()==x1;
+        return pointExists((vec.getY() - y1) / getSlope() + x1);
     }
 
     /**
@@ -128,7 +131,7 @@ public class Segment {
      * @param y (int) The inputted y value to test for.
      * @return (boolean) Whether the inputted y value exists in the bounds of the segment.
      */
-    public boolean yExists(int y) {
+    public boolean yExists(float y) {
         return y >= Math.min(y1,y2) && y <= Math.max(y1,y2);
     }
 }

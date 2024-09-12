@@ -75,6 +75,7 @@ public class Vector {
 
     /**
      * Create the unit vector of the host vector.
+     * If the magnitude of the vector is zero, this function will return null.
      * @return (Vector) The unit vector.
      */
     public Vector norm() {
@@ -200,5 +201,16 @@ public class Vector {
             vec.setValue(i,this.vec[i]);
         }
         return vec;
+    }
+
+    /**
+     * Prints the entire vector out
+     */
+    public void print() {
+        System.out.print("["+vec[0]);
+        for(int i = 1; i < vec.length; i++) {
+            System.out.print(","+vec[i]);
+        }
+        System.out.println("]");
     }
 }

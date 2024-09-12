@@ -20,7 +20,7 @@ public class Main extends Game {
         s2 = new Polygon(new Vector(500,500),new Vector(0,50), new Vector(0,-50),new Vector(100,-50),new Vector(100,50));
         System.out.println("Rectangle");
         s3 = new Polygon(new Vector(500,700),new Vector(0,50), new Vector(0,-50),new Vector(1000,-50),new Vector(1000,50));
-        int sides = 5;
+        int sides = 100;
         int size = 100;
         Vector[] vArr = new Vector[sides];
         for(int i = 0; i < sides; i++) {
@@ -31,16 +31,32 @@ public class Main extends Game {
         System.out.println("Custom Polygon");
         s4.setPos(100,700);
         seg = new Segment(1920/2,1080/2,0,0);
+        s3.setTransform(new Matrix(new float[][]{
+                {5000*(float)Math.cos(Math.toRadians(0)),5000*-(float)Math.sin(Math.toRadians(0))},
+                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
+        }));
     }
 
+    int rotate;
     @Override
     public void update() {
-        if(s2==null) return;
+        if(s1==null||s2==null||s3==null||s4==null) return;
         s2.move(new Vector(velX,velY));
-        velY++;
-        if(s2.sat(s1)) velY = 0;
-        if(s2.sat(s3)) velY = 0;
-        if(s2.sat(s4)) velY = 0;
+        if(velX>0) rotate+=5;
+        if(velX<0) rotate-=5;
+        if(rotate%90!=0&&velX==0) {
+            if(rotate%45==0) rotate+=5;
+            rotate+=5*((int)Math.signum((rotate%90)-45));
+            s2.move(new Vector(5*((int)Math.signum((rotate%90)-45)),0));
+        }
+        if(velY < 10) velY++;
+        if(s2.sat(s1)) velY = 5;
+        if(s2.sat(s3)) velY = 5;
+        if(s2.sat(s4)) velY = 5;
+        s2.setTransform(new Matrix(new float[][]{
+                {(float)Math.cos(Math.toRadians(rotate)),-(float)Math.sin(Math.toRadians(rotate))},
+                {(float)Math.sin(Math.toRadians(rotate)),(float)Math.cos(Math.toRadians(rotate))}
+        }));
     }
 
     @Override
