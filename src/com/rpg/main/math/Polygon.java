@@ -1,5 +1,7 @@
 package com.rpg.main.math;
 
+import com.jogamp.opengl.GL2;
+
 import java.awt.*;
 
 public class Polygon {
@@ -147,19 +149,26 @@ public class Polygon {
 
     /**
      * A test function that renders the polygon data.
-     * @param g (Graphics2D) The graphics object to render to.
+     * @param gl (GL2) The OpenGL object to render to.
      */
-    public void renderPolygon(Graphics2D g) {
+    public void renderPolygon(GL2 gl) {
+        gl.glColor3f(1,1,1);
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK,GL2.GL_LINE);
+        gl.glBegin(GL2.GL_POLYGON);
+        for(Vector vertex : getVertices()) {
+            gl.glVertex2f(vertex.getX(),vertex.getY());
+        }
+        gl.glEnd();
+        gl.glFlush();
+        gl.glColor3f(0,1,0);
         for(int i = 0; i < getVertices().length; i++) {
-            g.setColor(Color.GREEN);
             Vector midpoint = getVertices()[i].sub(getEdges()[i].scale(0.5f));
             Vector normal = getEdges()[i].perp().norm().scale(50).add(midpoint);;
-            g.drawLine((int)normal.getX(),(int)normal.getY(),(int)midpoint.getX(),(int)midpoint.getY());
-            g.setColor(Color.WHITE);
-            g.drawLine((int)getVertices()[i].getX(),
-                    (int)getVertices()[i].getY(),
-                    (int)getVertices()[(i+1==getVertices().length)?0:i+1].getX(),
-                    (int)getVertices()[(i+1==getVertices().length)?0:i+1].getY());
+            gl.glBegin(GL2.GL_LINES);
+            gl.glVertex2f(normal.getX(),normal.getY());
+            gl.glVertex2f(midpoint.getX(),midpoint.getY());
+            gl.glEnd();
+            gl.glFlush();
         }
     }
 

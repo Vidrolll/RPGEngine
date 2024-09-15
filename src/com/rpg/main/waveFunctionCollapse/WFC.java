@@ -3,8 +3,6 @@ package com.rpg.main.waveFunctionCollapse;
 // reference:
 // https://github.com/mxgmn/WaveFunctionCollapse
 
-import com.rpg.main.gui.MainWindow;
-
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.*;
@@ -295,8 +293,8 @@ public class WFC {
      */
     public static void draw(Graphics2D g, WFC_Grid grid){
 
-        int smallestDim = Math.min(MainWindow.getSize().height, MainWindow.getSize().width);
-        draw(g, grid, 0, 0, smallestDim, smallestDim);
+        //int smallestDim = Math.min(MainWindow.getSize().height, MainWindow.getSize().width);
+        //draw(g, grid, 0, 0, smallestDim, smallestDim);
 
     }
 

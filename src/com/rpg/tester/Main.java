@@ -1,13 +1,14 @@
 package com.rpg.tester;
 
+import com.jogamp.newt.event.InputEvent;
+import com.jogamp.newt.event.KeyEvent;
+import com.jogamp.newt.event.MouseEvent;
+import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
 import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
 
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 
 public class Main extends Game {
     Polygon s1,s2,s3,s4;
@@ -35,6 +36,15 @@ public class Main extends Game {
         }));
     }
 
+    @Override
+    public void draw(GL2 gl) {
+        if(s1==null||s2==null||s3==null||s4==null) return;
+        s1.renderPolygon(gl);
+        s2.renderPolygon(gl);
+        s3.renderPolygon(gl);
+        s4.renderPolygon(gl);
+    }
+
     int rotate;
     @Override
     public void update() {
@@ -58,21 +68,9 @@ public class Main extends Game {
     }
 
     @Override
-    public void draw(Graphics2D g) {
-        g.setColor(Color.WHITE);
-        //if(s2.sat(s1)) g.setColor(Color.RED);
-        if(s1==null||s2==null||s3==null||s4==null) return;
-        s1.renderPolygon(g);
-        s2.renderPolygon(g);
-        s3.renderPolygon(g);
-        s4.renderPolygon(g);
-    }
-
-    int velX=0,velY=0;
-    boolean[] keyDown = {false,false,false,false};
-    @Override
     public void input(KeyEvent e) {
-        if(e.getID()==KeyEvent.KEY_PRESSED) {
+        if(e.getKeyCode()==KeyEvent.VK_ESCAPE) System.exit(0);
+        if(e.getEventType()==KeyEvent.EVENT_KEY_PRESSED&&(InputEvent.AUTOREPEAT_MASK & e.getModifiers()) == 0) {
             if(e.getKeyCode()==KeyEvent.VK_A) {
                 keyDown[2] = true;
                 velX = -5;
@@ -83,7 +81,7 @@ public class Main extends Game {
             }
             if(e.getKeyCode()==KeyEvent.VK_SPACE) velY = -20;
         }
-        if(e.getID()==KeyEvent.KEY_RELEASED) {
+        if(e.getEventType()==KeyEvent.EVENT_KEY_RELEASED&&(InputEvent.AUTOREPEAT_MASK & e.getModifiers()) == 0) {
             if(e.getKeyCode()==KeyEvent.VK_A) keyDown[2] = false;
             if(e.getKeyCode()==KeyEvent.VK_D) keyDown[3] = false;
             if(!(keyDown[2]||keyDown[3])) velX = 0;
@@ -91,12 +89,12 @@ public class Main extends Game {
     }
 
     @Override
-    public void input(MouseEvent e, int x, int y) {
+    public void input(MouseEvent e) {
 
     }
 
-    @Override
-    public void input(FocusEvent e) {}
+    int velX=0,velY=0;
+    boolean[] keyDown = {false,false,false,false};
 
     public static void main(String[] args) {
         new Main();
