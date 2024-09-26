@@ -75,11 +75,11 @@ public class Vector {
 
     /**
      * Create the unit vector of the host vector.
-     * If the magnitude of the vector is zero, this function will return null.
+     * If the magnitude of the vector is zero, this function will return an empty vector.
      * @return (Vector) The unit vector.
      */
     public Vector norm() {
-        if(mag()==0) return null;
+        if(mag()==0) return new Vector(0,0);
         return scale(1.0f/mag());
     }
 

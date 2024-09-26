@@ -7,8 +7,7 @@ import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
 import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
-
-import java.awt.*;
+import com.rpg.main.opengl.Graphics;
 
 public class Main extends Game {
     Polygon s1,s2,s3,s4;
@@ -79,7 +78,9 @@ public class Main extends Game {
                 keyDown[3] = true;
                 velX = 5;
             }
-            if(e.getKeyCode()==KeyEvent.VK_SPACE) velY = -20;
+            if(e.getKeyCode()==KeyEvent.VK_SPACE) {
+                velY = -20;
+            }
         }
         if(e.getEventType()==KeyEvent.EVENT_KEY_RELEASED&&(InputEvent.AUTOREPEAT_MASK & e.getModifiers()) == 0) {
             if(e.getKeyCode()==KeyEvent.VK_A) keyDown[2] = false;
