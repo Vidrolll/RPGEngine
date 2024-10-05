@@ -6,13 +6,16 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.rpg.main.Game;
 import com.rpg.main.util.InputHandler;
+import org.lwjgl.openal.*;
 
 import java.net.URL;
 
 public class Renderer {
+    //Variables for the window data
     private static GLWindow window;
     private static GLProfile profile;
 
+    //Variables for the resolution data
     public static int screenWidth = 640;
     public static int screenHeight = 360;
 
@@ -26,7 +29,7 @@ public class Renderer {
 
         window = GLWindow.create(caps);
         window.setSize(1920,1080);
-        window.setResizable(false);
+        window.setResizable(true);
         window.addGLEventListener(new EventListener(game));
         window.addMouseListener(new InputHandler(game));
         window.addKeyListener(new InputHandler(game));
@@ -34,10 +37,12 @@ public class Renderer {
         FPSAnimator animator = new FPSAnimator(window,60);
         animator.start();
 
-//        window.setFullscreen(true);
+        window.setFullscreen(true);
         window.setVisible(true);
         window.requestFocus();
     }
+
+
 
     /**
      * Returns the GLProfile.
@@ -45,5 +50,13 @@ public class Renderer {
      */
     public static GLProfile getProfile() {
         return profile;
+    }
+
+    /**
+     * Returns the current GLWindow.
+     * @return (GLWindow) The current window.
+     */
+    public static GLWindow getWindow() {
+        return window;
     }
 }

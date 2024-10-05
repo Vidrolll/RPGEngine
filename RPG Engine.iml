@@ -10,5 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jogamp.gluegen.rt.main" level="project" />
     <orderEntry type="library" name="jogamp.jogl.all.main" level="project" />
+    <orderEntry type="library" name="lwjgl.osgi.openal" level="project" />
+    <orderEntry type="library" name="lwjgl.osgi.stb" level="project" />
   </component>
 </module>

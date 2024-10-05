@@ -5,6 +5,7 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
+import com.rpg.main.audio.Sound;
 import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
 
@@ -34,6 +35,8 @@ public class Main extends Game {
                 {5000*(float)Math.cos(Math.toRadians(0)),5000*-(float)Math.sin(Math.toRadians(0))},
                 {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
         }));
+        Sound sound = new Sound("resources/sounds/entrance.ogg", false);
+        sound.play();
     }
 
     @Override
