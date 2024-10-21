@@ -7,28 +7,28 @@ import com.rpg.main.math.Vector;
 public abstract class Entity {
     //Entity variables
     protected Vector pos, velocity;
-    protected Polygon[] hitbox;
+    protected Polygon hitbox;
 
     /**
-     * Creates an entity with a defined hitbox array.
-     * @param hitbox (Polygon[]) The defined hitbox array to give to the created entity.
+     * Creates an entity with a defined hitbox.
+     * @param hitbox (Polygon) The defined hitbox to give to the created entity.
      */
-    public Entity(Polygon...hitbox) {
+    public Entity(Polygon hitbox) {
         this.hitbox = hitbox;
     }
 
     /**
-     * Default constructor. Creates an entity with a null hitbox array to it.
+     * Default constructor. Creates an entity with a null hitbox to it.
      */
     public Entity() {
         this((Polygon)null);
     }
 
     /**
-     * Returns the current hitbox array of the entity.
-     * @return (Polygon[]) The current hitbox array.
+     * Returns the current hitbox of the entity.
+     * @return (Polygon[]) The current hitbox.
      */
-    public Polygon[] getHitbox() {
+    public Polygon getHitbox() {
         return hitbox;
     }
 

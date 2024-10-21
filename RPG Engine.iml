@@ -11,5 +11,6 @@
     <orderEntry type="library" name="jogamp.gluegen.rt.main" level="project" />
     <orderEntry type="library" name="jogamp.jogl.all.main" level="project" />
     <orderEntry type="library" name="googlecode.json.simple" level="project" />
+    <orderEntry type="library" name="library" level="project" />
   </component>
 </module>
