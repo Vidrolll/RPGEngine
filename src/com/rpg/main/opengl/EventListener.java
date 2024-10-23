@@ -6,6 +6,9 @@ import com.jogamp.opengl.GLEventListener;
 import com.rpg.main.Game;
 import org.lwjgl.openal.*;
 
+import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.ALC10.*;
+
 public class EventListener implements GLEventListener {
     Game game;
 
@@ -26,8 +29,8 @@ public class EventListener implements GLEventListener {
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
-        ALC10.alcDestroyContext(audioContext);
-        ALC10.alcCloseDevice(audioDevice);
+        alcDestroyContext(audioContext);
+        alcCloseDevice(audioDevice);
         drawable.getAnimator().stop();
     }
 
@@ -54,16 +57,18 @@ public class EventListener implements GLEventListener {
      * Creates a new audio device.
      */
     public void createAudioContext() {
-        String defaultDeviceName = ALC10.alcGetString(0, ALC10.ALC_DEFAULT_DEVICE_SPECIFIER);
+        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
         assert defaultDeviceName != null : "No audio device found.";
-        audioDevice = ALC10.alcOpenDevice(defaultDeviceName);
+        audioDevice = alcOpenDevice(defaultDeviceName);
 
         int[] attributes = {0};
-        audioContext = ALC10.alcCreateContext(audioDevice,attributes);
-        ALC10.alcMakeContextCurrent(audioContext);
+        audioContext = alcCreateContext(audioDevice,attributes);
+        alcMakeContextCurrent(audioContext);
 
         ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
         ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        alDistanceModel(AL_INVERSE_DISTANCE);
 
         assert alCapabilities.OpenAL10 : "Audio library not supported.";
     }

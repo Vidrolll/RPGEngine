@@ -48,7 +48,6 @@ public class Sound {
         sourceId = AL10.alGenSources();
         AL10.alSourcei(sourceId, AL10.AL_BUFFER, bufferId);
         AL10.alSourcei(sourceId, AL10.AL_LOOPING, loops ? 1 : 0);
-        AL10.alSourcei(sourceId, AL10.AL_POSITION, 0);
         AL10.alSourcef(sourceId, AL10.AL_GAIN, 0.3f);
         LibCStdlib.free(rawAudioBuffer);
     }
@@ -62,7 +61,6 @@ public class Sound {
         int state = AL10.alGetSourcei(sourceId, AL10.AL_SOURCE_STATE);
         if(state == AL10.AL_STOPPED) {
             isPlaying = false;
-            AL10.alSourcei(sourceId, AL10.AL_POSITION, 0);
         }
         if(!isPlaying) {
             AL10.alSourcePlay(sourceId);
@@ -89,5 +87,16 @@ public class Sound {
 
     public void setGain(float gain) {
         AL10.alSourcef(sourceId, AL10.AL_GAIN, gain);
+    }
+
+    public void setPan(float pan) {
+        AL10.alSourcef(sourceId, AL10.AL_ROLLOFF_FACTOR, 0.0f);
+        AL10.alSourcei(sourceId,AL10.AL_SOURCE_RELATIVE,AL10.AL_TRUE);
+        AL10.alSourcefv(sourceId,AL10.AL_POSITION, new float[]{pan, 0, -(float)Math.sqrt(1 - pan * pan)});
+    }
+    public void setPan(float panX, float panY) {
+        AL10.alSourcef(sourceId, AL10.AL_ROLLOFF_FACTOR, 0.0f);
+        AL10.alSourcei(sourceId,AL10.AL_SOURCE_RELATIVE,AL10.AL_TRUE);
+        AL10.alSourcefv(sourceId,AL10.AL_POSITION, new float[]{panX, panY, -(float)Math.sqrt(1 - panX * panX)});
     }
 }
