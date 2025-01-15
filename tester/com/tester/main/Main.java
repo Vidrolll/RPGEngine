@@ -9,6 +9,7 @@ import com.rpg.main.audio.Sound;
 import com.rpg.main.math.*;
 import com.rpg.main.math.Polygon;
 import com.rpg.main.util.Assets;
+import com.rpg.main.util.Time;
 import org.lwjgl.openal.AL10;
 
 public class Main extends Game {
@@ -53,15 +54,15 @@ public class Main extends Game {
     @Override
     public void update() {
         if(s1==null||s2==null||s3==null||s4==null) return;
-        s2.move(new Vector(velX,velY));
-        if(velX>0) rotate+=5;
-        if(velX<0) rotate-=5;
+        s2.move(new Vector(velX,velY).scale((float)Time.deltaTime));
+        if(velX>0) rotate+=(int)(5*Time.deltaTime);
+        if(velX<0) rotate-=(int)(5*Time.deltaTime);
         if(rotate%90!=0&&velX==0) {
-            if(rotate%45==0) rotate-=5;
-            rotate+=5*((int)Math.signum((rotate%90)-45));
-            s2.move(new Vector(5*((int)Math.signum((rotate%90)-45)),0));
+            if(rotate%45==0) rotate-=(int)(5*Time.deltaTime);
+            rotate+=(int)(5*((int)Math.signum((rotate%90)-45))*Time.deltaTime);
+            s2.move(new Vector(5*((int)Math.signum((rotate%90)-45)),0).scale((float)Time.deltaTime));
         }
-        if(velY < 10) velY++;
+        if(velY < 10) velY+=(float)Time.deltaTime;
         if(s2.sat(s1)) velY = 5;
         if(s2.sat(s3)) velY = 5;
         if(s2.sat(s4)) velY = 5;
@@ -98,7 +99,7 @@ public class Main extends Game {
         Assets.getSound("entrance1").setPan((e.getX()/960.0f)-1.0f);
     }
 
-    int velX=0,velY=0;
+    float velX=0,velY=0;
     boolean[] keyDown = {false,false,false,false};
 
     public static void main(String[] args) {

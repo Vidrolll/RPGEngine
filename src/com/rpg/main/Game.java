@@ -5,6 +5,7 @@ import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.opengl.Renderer;
 import com.rpg.main.util.InputHandler;
+import com.rpg.main.util.Time;
 
 import java.awt.*;
 import java.awt.image.BufferStrategy;
@@ -22,6 +23,18 @@ public abstract class Game {
         Renderer.init(this);
     }
 
+//    @Override
+//    public void run() {
+//        double ns = 1000000000/60.0D;
+//        long lastTime = System.nanoTime();
+//        while(running) {
+//            long now = System.nanoTime();
+//            Time.deltaTime = (now-lastTime)/ns;
+//            lastTime = now;
+//            Renderer.display();
+//        }
+//        stop();
+//    }
 
     //The draw function of the game, locked to the framerate.
     public abstract void draw(GL2 gl);

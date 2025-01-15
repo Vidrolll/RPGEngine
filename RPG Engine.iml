@@ -14,5 +14,6 @@
     <orderEntry type="library" name="jogamp.jogl.all.main" level="project" />
     <orderEntry type="library" name="lwjgl.osgi.openal" level="project" />
     <orderEntry type="library" name="lwjgl.osgi.stb" level="project" />
+    <orderEntry type="library" name="googlecode.json.simple" level="project" />
   </component>
 </module>

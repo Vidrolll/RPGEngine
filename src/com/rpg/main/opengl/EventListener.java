@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.rpg.main.Game;
+import com.rpg.main.util.Time;
 import org.lwjgl.openal.*;
 
 import static org.lwjgl.openal.AL10.*;
@@ -16,6 +17,10 @@ public class EventListener implements GLEventListener {
     private long audioContext;
     private long audioDevice;
 
+    //The amount of ticks that should be performed every second. Important for Delta Time.
+    private int TPS = 60;
+    long lastTime = System.nanoTime();
+
     public EventListener(Game game) {
         this.game = game;
     }
@@ -23,6 +28,7 @@ public class EventListener implements GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
+        gl.setSwapInterval(0);
         createAudioContext();
         gl.glClearColor(0,0,0,1);
     }
@@ -36,10 +42,20 @@ public class EventListener implements GLEventListener {
 
     @Override
     public void display(GLAutoDrawable drawable) {
+        deltaTime();
         GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
         game.update();
         game.draw(gl);
+    }
+
+    /**
+     * Determines how much game objects should be updated compared to the last run of the game loop.
+     */
+    public void deltaTime() {
+        long now = System.nanoTime();
+        Time.deltaTime = (now-lastTime)/(1000000000.0D/TPS);
+        lastTime = now;
     }
 
     @Override

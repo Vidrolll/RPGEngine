@@ -1,8 +1,10 @@
 package com.rpg.main.opengl;
 
 import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.rpg.main.Game;
 import com.rpg.main.util.InputHandler;
@@ -33,11 +35,10 @@ public class Renderer {
         window.addGLEventListener(new EventListener(game));
         window.addMouseListener(new InputHandler(game));
         window.addKeyListener(new InputHandler(game));
-
-        FPSAnimator animator = new FPSAnimator(window,60);
+        Animator animator = new Animator(window);
         animator.start();
 
-        window.setFullscreen(true);
+        window.setFullscreen(false);
         window.setVisible(true);
         window.requestFocus();
     }
