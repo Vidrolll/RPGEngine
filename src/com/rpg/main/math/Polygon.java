@@ -2,7 +2,7 @@ package com.rpg.main.math;
 
 import com.jogamp.opengl.GL2;
 
-import java.awt.*;
+import com.rpg.main.opengl.Graphics;
 
 public class Polygon {
     /**
@@ -154,12 +154,7 @@ public class Polygon {
     public void renderPolygon(GL2 gl) {
         gl.glColor3f(1,1,1);
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK,GL2.GL_LINE);
-        gl.glBegin(GL2.GL_POLYGON);
-        for(Vector vertex : getVertices()) {
-            gl.glVertex2f(vertex.getX(),vertex.getY());
-        }
-        gl.glEnd();
-        gl.glFlush();
+        Graphics.drawPoly(gl,getVertices());
         gl.glColor3f(0,1,0);
         for(int i = 0; i < getVertices().length; i++) {
             Vector midpoint = getVertices()[i].sub(getEdges()[i].scale(0.5f));
