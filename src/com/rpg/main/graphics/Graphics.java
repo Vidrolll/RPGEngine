@@ -1,7 +1,7 @@
-package com.rpg.main.opengl;
+package com.rpg.main.graphics;
 
 import com.jogamp.opengl.GL2;
-import com.rpg.main.math.Vector;
+import com.rpg.main.math.vector.Vector2;
 
 public class Graphics {
     /**
@@ -9,9 +9,9 @@ public class Graphics {
      * @param gl (GL2) The OpenGL object to render with.
      * @param vertices (Vector[]) The list of vertices to render with.
      */
-    public static void drawPoly(GL2 gl, Vector...vertices) {
+    public static void drawPoly(GL2 gl, Vector2...vertices) {
         gl.glBegin(GL2.GL_POLYGON);
-        for (Vector vertex : vertices) {
+        for (Vector2 vertex : vertices) {
             gl.glVertex2f(vertex.getX(), vertex.getY());
         }
         gl.glVertex2f(vertices[0].getX(), vertices[0].getY());

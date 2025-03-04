@@ -1,11 +1,12 @@
-package com.rpg.main.opengl;
+package com.rpg.main.graphics;
 
 import com.jogamp.opengl.util.texture.awt.AWTTextureIO;
+import com.rpg.main.graphics.opengl.Renderer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.Objects;
+import java.io.InputStream;
 
 public class Texture {
     //Texture variables
@@ -17,12 +18,14 @@ public class Texture {
      * @param path (String) The path of the image.
      */
     public Texture(String path) {
-        try {
-            image = ImageIO.read(Objects.requireNonNull(Texture.class.getResource(path)));
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (inputStream == null) {
+                throw new RuntimeException("Resource not found: " + path);
+            }
+            image = ImageIO.read(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        image.flush();
     }
 
     /**

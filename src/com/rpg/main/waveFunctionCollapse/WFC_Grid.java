@@ -1,6 +1,6 @@
 package com.rpg.main.waveFunctionCollapse;
 
-import com.rpg.main.math.Vector;
+import com.rpg.main.math.vector.Vector2;
 import java.util.Objects;
 
 // Grid to hold Cells
@@ -118,11 +118,11 @@ public class WFC_Grid implements Cloneable {
      * @param index index of the cell
      * @return Vector2 representing x and y of the cell in the grid
      */
-    public Vector XYFromIndex(int index){
+    public Vector2 XYFromIndex(int index){
 
         int x = index % this.width;
         int y = (index - x) / this.width;
-        return new Vector(x, y);
+        return new Vector2(x, y);
 
     }
 

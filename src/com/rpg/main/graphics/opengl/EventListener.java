@@ -1,9 +1,10 @@
-package com.rpg.main.opengl;
+package com.rpg.main.graphics.opengl;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.rpg.main.Game;
+import com.rpg.main.graphics.Shaders;
 import com.rpg.main.util.Time;
 import org.lwjgl.openal.*;
 
@@ -17,10 +18,6 @@ public class EventListener implements GLEventListener {
     private long audioContext;
     private long audioDevice;
 
-    //The amount of ticks that should be performed every second. Important for Delta Time.
-    private int TPS = 60;
-    long lastTime = System.nanoTime();
-
     public EventListener(Game game) {
         this.game = game;
     }
@@ -28,16 +25,24 @@ public class EventListener implements GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        gl.setSwapInterval(0);
+
+        Shaders.createShader(gl,"lighting");
+        Shaders.createShader(gl,"wrap");
+
+        gl.setSwapInterval(1);
         createAudioContext();
         gl.glClearColor(0,0,0,1);
     }
 
     @Override
     public void dispose(GLAutoDrawable drawable) {
+        cleanupAudioDevices();
+        drawable.getAnimator().stop();
+    }
+
+    public void cleanupAudioDevices() {
         alcDestroyContext(audioContext);
         alcCloseDevice(audioDevice);
-        drawable.getAnimator().stop();
     }
 
     @Override
@@ -45,16 +50,19 @@ public class EventListener implements GLEventListener {
         deltaTime();
         GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
+        game.camera(gl);
         game.update();
         game.draw(gl);
+        gl.glPopMatrix();
     }
 
     /**
      * Determines how much game objects should be updated compared to the last run of the game loop.
      */
+    long lastTime = System.nanoTime();
     public void deltaTime() {
         long now = System.nanoTime();
-        Time.deltaTime = (now-lastTime)/(1000000000.0D/TPS);
+        Time.deltaTime = (now-lastTime)/(1000000000.0D/Time.TPS);
         lastTime = now;
     }
 
@@ -65,7 +73,7 @@ public class EventListener implements GLEventListener {
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
 
-        gl.glOrtho(0,1920,1200,0,-1,1);
+        gl.glOrtho(0,1920,1080,0,-1,1);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
 

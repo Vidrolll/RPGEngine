@@ -3,12 +3,8 @@ package com.rpg.main;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
-import com.rpg.main.opengl.Renderer;
-import com.rpg.main.util.InputHandler;
-import com.rpg.main.util.Time;
-
-import java.awt.*;
-import java.awt.image.BufferStrategy;
+import com.rpg.main.graphics.Camera;
+import com.rpg.main.graphics.opengl.Renderer;
 
 /**
  * Creating a new game utilizing this engine should be done by making a
@@ -16,6 +12,9 @@ import java.awt.image.BufferStrategy;
  */
 
 public abstract class Game {
+    //Camera for rendering the location of the screen.
+    private Camera camera = new Camera();
+
     /**
      * Constructor used by the engine, this method should be supered in the extended class for proper functionality.
      */
@@ -35,6 +34,18 @@ public abstract class Game {
 //        }
 //        stop();
 //    }
+
+
+    public Camera getCamera() {
+        return camera;
+    }
+
+    public void camera(GL2 gl) {
+        camera.update();
+        gl.glPushMatrix();
+        gl.glTranslatef(-camera.getPosition().getX(), -camera.getPosition().getY(), 0.0f);
+        gl.glScalef(camera.getScale().getX(), camera.getScale().getY(), 1.0f);
+    }
 
     //The draw function of the game, locked to the framerate.
     public abstract void draw(GL2 gl);

@@ -1,16 +1,11 @@
-package com.rpg.main.opengl;
+package com.rpg.main.graphics.opengl;
 
 import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.Animator;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.rpg.main.Game;
 import com.rpg.main.util.InputHandler;
-import org.lwjgl.openal.*;
-
-import java.net.URL;
 
 public class Renderer {
     //Variables for the window data
@@ -38,7 +33,7 @@ public class Renderer {
         Animator animator = new Animator(window);
         animator.start();
 
-        window.setFullscreen(false);
+        window.setFullscreen(true);
         window.setVisible(true);
         window.requestFocus();
     }

@@ -1,10 +1,12 @@
 package com.rpg.main.math;
 
+import com.rpg.main.math.vector.Vector2;
+
 import java.util.Random;
 
 public class VoronoiNoise {
     //Grid for the voronoi noise
-    private Vector[] grid;
+    private Vector2[] grid;
 
     /**
      * Creates a new Voronoi Noise grid with a defined random generation seed.
@@ -14,11 +16,11 @@ public class VoronoiNoise {
      * @param seed (Integer) The seed used to generate the random positions of the vertices.
      */
     public VoronoiNoise(int width, int height, int seed) {
-        grid = new Vector[width*height];
+        grid = new Vector2[width*height];
         Random random = new Random(seed);
         for(int i = 0; i < width; i++) {
             for(int j = 0; j < height; j++) {
-                grid[j*width+i] = new Vector(i+random.nextFloat(),j+ random.nextFloat());
+                grid[j*width+i] = new Vector2(i+random.nextFloat(),j+ random.nextFloat());
             }
         }
     }
@@ -44,9 +46,9 @@ public class VoronoiNoise {
      * @return (Float) The noise value at the given coordinate.
      */
     public float noise(float x, float y) {
-        Vector point = new Vector(x,y);
+        Vector2 point = new Vector2(x,y);
         float value = Float.MAX_VALUE;
-        for (Vector vector : grid) {
+        for (Vector2 vector : grid) {
             if (vector.dist(point) < value)
                 value = vector.dist(point);
         }

@@ -2,11 +2,11 @@ package com.rpg.main.entity;
 
 import com.jogamp.opengl.GL2;
 import com.rpg.main.math.Polygon;
-import com.rpg.main.math.Vector;
+import com.rpg.main.math.vector.Vector2;
 
 public abstract class Entity {
     //Entity variables
-    protected Vector pos, velocity;
+    protected Vector2 pos, velocity;
     protected Polygon hitbox;
 
     /**
@@ -36,7 +36,7 @@ public abstract class Entity {
      * Returns the current position of the entity.
      * @return (Vector) The current position of the entity.
      */
-    public Vector getPos() {
+    public Vector2 getPos() {
         return pos;
     }
 
@@ -44,7 +44,7 @@ public abstract class Entity {
      * Returns the current velocity of the entity.
      * @return (Vector) The current velocity of the entity.
      */
-    public Vector getVelocity() {
+    public Vector2 getVelocity() {
         return velocity;
     }
 
@@ -52,7 +52,7 @@ public abstract class Entity {
      * Sets the position of the entity.
      * @param pos (Vector) The new position to move the entity to.
      */
-    public void setPosition(Vector pos) {
+    public void setPosition(Vector2 pos) {
         this.pos = pos;
     }
 
@@ -60,7 +60,7 @@ public abstract class Entity {
      * Sets the velocity of the entity.
      * @param velocity (Vector) The new velocity to set to.
      */
-    public void setVelocity(Vector velocity) {
+    public void setVelocity(Vector2 velocity) {
         this.velocity = velocity;
     }
 

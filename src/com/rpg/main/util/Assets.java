@@ -1,7 +1,7 @@
 package com.rpg.main.util;
 
 import com.rpg.main.audio.Sound;
-import com.rpg.main.opengl.Texture;
+import com.rpg.main.graphics.Texture;
 
 import java.util.HashMap;
 
@@ -53,12 +53,13 @@ public class Assets {
      */
     public static void initialize() {
         //TEXTURES
-        addTexture("crossTile","/textures/crossTile.png");
-        addTexture("emptyTile","/textures/emptyTile.png");
-        addTexture("testTile","/textures/testTile.png");
+        addTexture("crossTile","textures/crossTile.png");
+        addTexture("emptyTile","textures/emptyTile.png");
+        addTexture("testTile","textures/testTile.png");
 
         //SOUNDS
-        addSound("entrance1","res/sounds/entrance.ogg",true);
-        addSound("entrance2","res/sounds/entrance2.ogg",true);
+        addSound("entrance1","sounds/entrance.ogg",true);
+        addSound("entrance2","sounds/entrance2.ogg",true);
+        addSound("entrance_code","sounds/entrance_code.ogg",true);
     }
 }

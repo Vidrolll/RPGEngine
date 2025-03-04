@@ -6,8 +6,13 @@ import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.libc.LibCStdlib;
 
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
+
+import static org.lwjgl.openal.AL10.*;
 
 public class Sound {
     private int bufferId;
@@ -17,40 +22,65 @@ public class Sound {
     private boolean isPlaying = false;
 
     /**
-     *Creates a new sound file to play.
+     * Creates a new sound file to play.
      * @param filepath (String) The path of the sound to create.
      * @param loops (Boolean) Whether the sound should loop.
      */
     public Sound(String filepath, boolean loops) {
         this.filepath = filepath;
-        MemoryStack.stackPush();
-        IntBuffer channelsBuffer = MemoryStack.stackMallocInt(1);
-        MemoryStack.stackPush();
-        IntBuffer sampleRateBuffer = MemoryStack.stackMallocInt(1);
-        ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_filename(filepath, channelsBuffer, sampleRateBuffer);
-        if(rawAudioBuffer==null) {
-            System.err.println("Could not load sound '"+filepath+"'");
-            MemoryStack.stackPop();
-            MemoryStack.stackPop();
-            return;
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+             InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filepath)) {
+
+            if (inputStream == null) {
+                throw new IOException("Resource not found: " + filepath);
+            }
+
+            // Read the InputStream into a byte array
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            byte[] audioBytes = byteArrayOutputStream.toByteArray();
+
+            // Decode the audio from the byte array
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer channelsBuffer = stack.mallocInt(1);
+                IntBuffer sampleRateBuffer = stack.mallocInt(1);
+
+                // Allocate a ByteBuffer and copy audioBytes into it
+                ByteBuffer audioBuffer = ByteBuffer.allocateDirect(audioBytes.length);
+                audioBuffer.put(audioBytes).flip();
+
+                ShortBuffer rawAudioBuffer = STBVorbis.stb_vorbis_decode_memory(audioBuffer, channelsBuffer, sampleRateBuffer);
+
+                if (rawAudioBuffer == null) {
+                    throw new IOException("Could not decode audio data");
+                }
+
+                int channels = channelsBuffer.get();
+                int sampleRate = sampleRateBuffer.get();
+                int format = switch (channels) {
+                    case 1 -> AL_FORMAT_MONO16;
+                    case 2 -> AL_FORMAT_STEREO16;
+                    default -> throw new IOException("Unsupported number of channels: " + channels);
+                };
+
+                // Generate and fill OpenAL buffer
+                bufferId = alGenBuffers();
+                alBufferData(bufferId, format, rawAudioBuffer, sampleRate);
+
+                // Generate OpenAL source and configure it
+                sourceId = alGenSources();
+                alSourcei(sourceId, AL_BUFFER, bufferId);
+                alSourcei(sourceId, AL_LOOPING, loops ? 1 : 0);
+                alSourcei(sourceId, AL_POSITION, 0);
+                alSourcef(sourceId, AL_GAIN, 0.3f);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        int channels = channelsBuffer.get();
-        int sampleRate = sampleRateBuffer.get();
-        MemoryStack.stackPop();
-        MemoryStack.stackPop();
-        int format = switch(channels) {
-            case 1: yield AL10.AL_FORMAT_MONO16;
-            case 2: yield AL10.AL_FORMAT_STEREO16;
-            default: yield -1;
-        };
-        bufferId = AL10.alGenBuffers();
-        AL10.alBufferData(bufferId, format, rawAudioBuffer, sampleRate);
-        sourceId = AL10.alGenSources();
-        AL10.alSourcei(sourceId, AL10.AL_BUFFER, bufferId);
-        AL10.alSourcei(sourceId, AL10.AL_LOOPING, loops ? 1 : 0);
-        AL10.alSourcei(sourceId, AL10.AL_POSITION, 0);
-        AL10.alSourcef(sourceId, AL10.AL_GAIN, 0.3f);
-        LibCStdlib.free(rawAudioBuffer);
     }
 
     /**
@@ -121,5 +151,9 @@ public class Sound {
         AL10.alSourcef(sourceId, AL10.AL_ROLLOFF_FACTOR, 0.0f);
         AL10.alSourcei(sourceId,AL10.AL_SOURCE_RELATIVE,AL10.AL_TRUE);
         AL10.alSourcefv(sourceId,AL10.AL_POSITION, new float[]{pan, 0, -(float)Math.sqrt(1 - pan * pan)});
+    }
+
+    public void destroy() {
+        AL10.alDeleteSources(sourceId);
     }
 }

@@ -1,10 +1,12 @@
 package com.rpg.main.math;
 
+import com.rpg.main.math.vector.Vector2;
+
 import java.util.Random;
 
 public class PerlinNoise {
     //Variables for perlin generation.
-    Vector[] permutations;
+    Vector2[] permutations;
     int width;
     int height;
 
@@ -14,11 +16,11 @@ public class PerlinNoise {
      * @param height (Integer) The height of the grid to generate.
      */
     public PerlinNoise(int width, int height) {
-        permutations = new Vector[width*height];
+        permutations = new Vector2[width*height];
         Random r = new Random();
         for(int i = 0; i < permutations.length; i++) {
             float angle = r.nextFloat((float)(2*Math.PI));
-            permutations[i] = new Vector((float)Math.cos(angle),(float)Math.sin(angle));
+            permutations[i] = new Vector2((float)Math.cos(angle),(float)Math.sin(angle));
         }
         this.width = width;
         this.height = height;
@@ -38,10 +40,10 @@ public class PerlinNoise {
         int y1 = (int)Math.floor(y);
         int x2 = (x1+1);
         int y2 = (y1+1);
-        float d1 = new Vector(x-x1,y-y1).dot(permutations[(y1%height)*width+(x1%width)]);
-        float d2 = new Vector(x-x2,y-y1).dot(permutations[(y1%height)*width+(x2%width)]);
-        float d3 = new Vector(x-x1,y-y2).dot(permutations[(y2%height)*width+(x1%width)]);
-        float d4 = new Vector(x-x2,y-y2).dot(permutations[(y2%height)*width+(x2%width)]);
+        float d1 = new Vector2(x-x1,y-y1).dot(permutations[(y1%height)*width+(x1%width)]);
+        float d2 = new Vector2(x-x2,y-y1).dot(permutations[(y1%height)*width+(x2%width)]);
+        float d3 = new Vector2(x-x1,y-y2).dot(permutations[(y2%height)*width+(x1%width)]);
+        float d4 = new Vector2(x-x2,y-y2).dot(permutations[(y2%height)*width+(x2%width)]);
         float u = fade(x-x1), v = fade(y-y1);
         return lerp(u,lerp(v,d1,d3),lerp(v,d2,d4))*(float)(2/Math.sqrt(2));
     }
