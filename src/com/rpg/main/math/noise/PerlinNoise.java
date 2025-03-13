@@ -1,4 +1,4 @@
-package com.rpg.main.math;
+package com.rpg.main.math.noise;
 
 import com.rpg.main.math.vector.Vector2;
 

@@ -4,9 +4,9 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
-import com.rpg.main.waveFunctionCollapse.WFC;
-import com.rpg.main.waveFunctionCollapse.WFC_Grid;
-import com.rpg.main.waveFunctionCollapse.WFC_Tile;
+import com.rpg.main.math.noise.waveFunctionCollapse.WFC;
+import com.rpg.main.math.noise.waveFunctionCollapse.WFC_Grid;
+import com.rpg.main.math.noise.waveFunctionCollapse.WFC_Tile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

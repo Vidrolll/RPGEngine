@@ -8,8 +8,7 @@ import com.rpg.main.Game;
 import com.rpg.main.math.Polygon;
 import com.rpg.main.graphics.opengl.EventListener;
 import com.rpg.main.graphics.opengl.Renderer;
-import com.rpg.main.graphics.Shaders;
-import com.rpg.main.math.vector.Matrix2;
+import com.rpg.main.math.vector.Matrix3;
 import com.rpg.main.math.vector.Vector2;
 import com.rpg.main.util.Assets;
 import com.rpg.main.util.Time;
@@ -36,9 +35,10 @@ public class Main extends Game {
         s4 = new Polygon(new Vector2(0,0), vArr);
         System.out.println("Custom Polygon");
         s4.setPos(500,700);
-        s3.setTransform(new Matrix2(new float[][]{
-                {5000*(float)Math.cos(Math.toRadians(0)),5000*-(float)Math.sin(Math.toRadians(0))},
-                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
+        s3.setTransform(new Matrix3(new float[][]{
+                {5000*(float)Math.cos(Math.toRadians(0)),5000*-(float)Math.sin(Math.toRadians(0)),0},
+                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0)),0},
+                {0,0,1}
         }));
         AL10.alListener3f(AL10.AL_POSITION,0,0,0);
         Assets.getSound("entrance_code").play();
@@ -48,33 +48,32 @@ public class Main extends Game {
     @Override
     public void draw(GL2 gl) {
         if(s1==null||s2==null||s3==null||s4==null) return;
-        gl.glEnable(GL2.GL_TEXTURE_2D);
-        int shaderProgram = Shaders.getShader("lighting");
-        gl.glUseProgram(shaderProgram);
-
-
-        //Get uniform locations
-        int lightPosLoc = gl.glGetUniformLocation(shaderProgram, "lightPos");
-        int lightRadiusLoc = gl.glGetUniformLocation(shaderProgram, "lightRadius");
-        int lightColorLoc = gl.glGetUniformLocation(shaderProgram, "lightColor");
-        int lightCountLoc = gl.glGetUniformLocation(shaderProgram, "lightCount");
-
-        float[] lightPositions = {
-                x,y,
-                500f,325f
-        };
-        float[] lightColors = {
-                1.0f,1.0f,0.8f,
-                0.5f,0.5f,0.4f
-        };
-        float[] lightRadii = {400f,250f};
-        int lightCount = 2;
-
-        // Set uniform values
-        gl.glUniform2fv(lightPosLoc, lightCount, lightPositions, 0);
-        gl.glUniform3fv(lightColorLoc, lightCount, lightColors, 0);
-        gl.glUniform1fv(lightRadiusLoc, lightCount, lightRadii, 0);
-        gl.glUniform1i(lightCountLoc, lightCount);
+//        int shaderProgram = Shaders.getShader("lighting");
+//        gl.glUseProgram(shaderProgram);
+//
+//
+//        //Get uniform locations
+//        int lightPosLoc = gl.glGetUniformLocation(shaderProgram, "lightPos");
+//        int lightRadiusLoc = gl.glGetUniformLocation(shaderProgram, "lightRadius");
+//        int lightColorLoc = gl.glGetUniformLocation(shaderProgram, "lightColor");
+//        int lightCountLoc = gl.glGetUniformLocation(shaderProgram, "lightCount");
+//
+//        float[] lightPositions = {
+//                x,y,
+//                500f,325f
+//        };
+//        float[] lightColors = {
+//                1.0f,1.0f,0.8f,
+//                0.5f,0.5f,0.4f
+//        };
+//        float[] lightRadii = {400f,250f};
+//        int lightCount = 2;
+//
+//        // Set uniform values
+//        gl.glUniform2fv(lightPosLoc, lightCount, lightPositions, 0);
+//        gl.glUniform3fv(lightColorLoc, lightCount, lightColors, 0);
+//        gl.glUniform1fv(lightRadiusLoc, lightCount, lightRadii, 0);
+//        gl.glUniform1i(lightCountLoc, lightCount);
 
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK,GL2.GL_FILL);
         gl.glBegin(GL2.GL_TRIANGLES);
@@ -109,9 +108,10 @@ public class Main extends Game {
         if(s2.sat(s1)) velY = 5;
         if(s2.sat(s3)) velY = 5;
         if(s2.sat(s4)) velY = 5;
-        s2.setTransform(new Matrix2(new float[][]{
-                {(float)Math.cos(Math.toRadians(rotate)),-(float)Math.sin(Math.toRadians(rotate))},
-                {(float)Math.sin(Math.toRadians(rotate)),(float)Math.cos(Math.toRadians(rotate))}
+        s2.setTransform(new Matrix3(new float[][]{
+                {(float)Math.cos(Math.toRadians(rotate)),-(float)Math.sin(Math.toRadians(rotate)),0},
+                {(float)Math.sin(Math.toRadians(rotate)),(float)Math.cos(Math.toRadians(rotate)),0},
+                {0,0,1}
         }));
         getCamera().setTest(s2.getPos().sub(new Vector2((float) 1920 /2, (float) 1080 /2)));
     }

@@ -1,4 +1,4 @@
-package com.rpg.main.waveFunctionCollapse;
+package com.rpg.main.math.noise.waveFunctionCollapse;
 
 public class WFC_UnableToFinish extends RuntimeException {
     /**When the wave function collapse is unable to finish due to not having enough iterations

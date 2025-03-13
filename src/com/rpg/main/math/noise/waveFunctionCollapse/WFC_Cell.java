@@ -1,4 +1,4 @@
-package com.rpg.main.waveFunctionCollapse;
+package com.rpg.main.math.noise.waveFunctionCollapse;
 
 // Holds data about a cell in the grid
 public class WFC_Cell implements Cloneable{

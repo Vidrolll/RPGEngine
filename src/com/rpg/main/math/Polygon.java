@@ -3,7 +3,7 @@ package com.rpg.main.math;
 import com.jogamp.opengl.GL2;
 
 import com.rpg.main.graphics.Graphics;
-import com.rpg.main.math.vector.Matrix2;
+import com.rpg.main.math.vector.Matrix3;
 import com.rpg.main.math.vector.Vector2;
 
 public class Polygon {
@@ -15,7 +15,7 @@ public class Polygon {
     Vector2[] edges;
     Vector2 pos;
 
-    Matrix2 transform;
+    Matrix3 transform;
 
     //The solidity of the polygon, used for collisions.
     boolean solid = true;
@@ -32,9 +32,10 @@ public class Polygon {
      * @param vertices (Vector[]) A list of vertices to build the polygon.
      */
     public Polygon(Vector2 pos, Vector2...vertices) {
-        transform = new Matrix2(new float[][]{
-                {(float)Math.cos(Math.toRadians(0)),(float)-Math.sin(Math.toRadians(0))},
-                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0))}
+        transform = new Matrix3(new float[][]{
+                {(float)Math.cos(Math.toRadians(0)),(float)-Math.sin(Math.toRadians(0)),0},
+                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0)),0},
+                {0,0,1}
         });
         this.vertices = vertices;
         this.pos = pos;
@@ -236,9 +237,9 @@ public class Polygon {
 
     /**
      * Sets the transformation matrix to the inputted matrix.
-     * @param transform (Matrix) The inputted transformation matrix.
+     * @param transform (Matrix3) The inputted transformation matrix.
      */
-    public void setTransform(Matrix2 transform) {
+    public void setTransform(Matrix3 transform) {
         this.transform = transform;
         for(int i = 0; i < getVertices().length; i++)
             edges[i] = getVertices()[i].sub(getVertices()[(i+1==getVertices().length)?0:i+1]);

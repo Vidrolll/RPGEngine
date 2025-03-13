@@ -1,4 +1,4 @@
-package com.rpg.main.waveFunctionCollapse;
+package com.rpg.main.math.noise.waveFunctionCollapse;
 
 import com.rpg.main.math.vector.Vector2;
 import java.util.Objects;

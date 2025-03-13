@@ -35,7 +35,6 @@ public abstract class Game {
 //        stop();
 //    }
 
-
     public Camera getCamera() {
         return camera;
     }

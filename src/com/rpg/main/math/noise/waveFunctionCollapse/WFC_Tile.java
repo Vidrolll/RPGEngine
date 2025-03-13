@@ -1,4 +1,4 @@
-package com.rpg.main.waveFunctionCollapse;
+package com.rpg.main.math.noise.waveFunctionCollapse;
 
 import java.awt.*;
 
