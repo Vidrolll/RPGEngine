@@ -30,6 +30,9 @@ public class Renderer {
         window.addGLEventListener(new EventListener(game));
         window.addMouseListener(new InputHandler(game));
         window.addKeyListener(new InputHandler(game));
+
+        EventListener.createAudioContext();
+
         Animator animator = new Animator(window);
         animator.start();
 

@@ -107,4 +107,15 @@ public class Matrix3 {
                 matrix[2][0] * vec.x + matrix[2][1] * vec.y + matrix[2][2] * vec.z
         );
     }
+
+    /**
+     * Multiplies this matrix by a vector.
+     *
+     * @param vec (Vector2) The input vector.
+     * @return (Vector2) The resulting vector after matrix multiplication.
+     */
+    public Vector2 mul(Vector2 vec) {
+        Vector3 mv = mul(new Vector3(vec.getX(), vec.getY(), 1));
+        return new Vector2(mv.getX(), mv.getY());
+    }
 }
