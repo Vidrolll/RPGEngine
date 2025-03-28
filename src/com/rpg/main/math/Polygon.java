@@ -1,7 +1,6 @@
 package com.rpg.main.math;
 
 import com.jogamp.opengl.GL2;
-
 import com.rpg.main.graphics.Graphics;
 import com.rpg.main.math.vector.Matrix3;
 import com.rpg.main.math.vector.Vector2;
@@ -121,11 +120,12 @@ public class Polygon {
 
     /**
      * Performs an algorithm titled Separating Axis Theorem (SAT) to determine if the parent polygon and the inputted
-     * polygon are colliding. If a collision is detected and both polygons are solid said collision will be corrected.
+     * polygon are colliding. If a collision is detected, and both polygons are solid,
+     * the minimum translation vector will be returned. Otherwise, will return null.
      * @param poly (Polygon) The polygon to test for a collision.
-     * @return (boolean) Whether a collision has been detected.
+     * @return (Vector2) The minimum translation vector.
      */
-    public boolean sat(Polygon poly) {
+    public Vector2 sat(Polygon poly) {
         double minimumTranslation = Integer.MAX_VALUE;
         Vector2 minimumTranslationVector = new Vector2(Integer.MAX_VALUE,Integer.MAX_VALUE);
         for(int s = 0; s < 2; s++) {
@@ -144,7 +144,7 @@ public class Polygon {
                     if(dot < bMin) bMin = dot;
                     if(dot > bMax) bMax = dot;
                 }
-                if(aMax < bMin || bMax < aMin) return false;
+                if (aMax < bMin || bMax < aMin) return null;
                 float distance = aMax-bMin;
                 if(s==1) distance*=-1;
                 if(pE.scale(-distance).mag()<minimumTranslationVector.mag())
@@ -153,8 +153,8 @@ public class Polygon {
             }
         }
         if(getSolid()&&poly.getSolid())
-            move(minimumTranslationVector);
-        return true;
+            return minimumTranslationVector;
+        else return null;
     }
 
     /**
@@ -225,6 +225,15 @@ public class Polygon {
      */
     public void setPos(int x, int y) {
         pos = new Vector2(x,y);
+    }
+
+    /**
+     * Sets the position of the polygon to a given value.
+     *
+     * @param pos (Vector2) The vector position to set to.
+     */
+    public void setPos(Vector2 pos) {
+        this.pos = pos;
     }
 
     /**

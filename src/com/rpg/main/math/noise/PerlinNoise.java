@@ -48,6 +48,7 @@ public class PerlinNoise {
         return lerp(u,lerp(v,d1,d3),lerp(v,d2,d4))*(float)(2/Math.sqrt(2));
     }
 
+    //idek what these methods do ngl I just looked them up.
     public float fade(float t) {
         return ((6*t - 15)*t + 10)*t*t*t;
     }

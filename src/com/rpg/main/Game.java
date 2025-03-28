@@ -12,8 +12,10 @@ import com.rpg.main.graphics.opengl.Renderer;
  */
 
 public abstract class Game {
-    //Camera for rendering the location of the screen.
-    private Camera camera = new Camera();
+    /**
+     * The current game camera object.
+     */
+    public static final Camera CAMERA = new Camera();
 
     /**
      * Constructor used by the engine, this method should be supered in the extended class for proper functionality.
@@ -22,36 +24,37 @@ public abstract class Game {
         Renderer.init(this);
     }
 
-//    @Override
-//    public void run() {
-//        double ns = 1000000000/60.0D;
-//        long lastTime = System.nanoTime();
-//        while(running) {
-//            long now = System.nanoTime();
-//            Time.deltaTime = (now-lastTime)/ns;
-//            lastTime = now;
-//            Renderer.display();
-//        }
-//        stop();
-//    }
-
-    public Camera getCamera() {
-        return camera;
-    }
-
+    /**
+     * Moves the screen position based on the position of the camera.
+     *
+     * @param gl (GL2) The current OpenGL drawable object.
+     */
     public void camera(GL2 gl) {
-        camera.update();
+        CAMERA.update();
         gl.glPushMatrix();
-        gl.glTranslatef(-camera.getPosition().getX(), -camera.getPosition().getY(), 0.0f);
-        gl.glScalef(camera.getScale().getX(), camera.getScale().getY(), 1.0f);
+        gl.glTranslatef(-CAMERA.getPosition().getX(), -CAMERA.getPosition().getY(), 0.0f);
+        gl.glScalef(CAMERA.getScale().getX(), CAMERA.getScale().getY(), 1.0f);
     }
 
-    //The draw function of the game, locked to the framerate.
+    /**
+     * The draw function of the game, locked to the framerate.
+     */
     public abstract void draw(GL2 gl);
-    //The update function of the game, locked to the framerate.
+
+    /**
+     * The update function of the game, locked to the framerate.
+     */
     public abstract void update();
-    //Key event function of the game
+
+    /**
+     * Key event function of the game.
+     * @param e (KeyEvent) The key input detected.
+     */
     public abstract void input(KeyEvent e);
-    //Mouse event function of the game
+
+    /**
+     * Mouse event function of the game.
+     * @param e (MouseEvent) The mouse input detected.
+     */
     public abstract void input(MouseEvent e);
 }

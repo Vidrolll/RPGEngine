@@ -1,5 +1,6 @@
 package com.rpg.main.graphics;
 
+import com.rpg.main.entity.Entity;
 import com.rpg.main.math.vector.Vector2;
 import com.rpg.main.util.Time;
 
@@ -8,7 +9,7 @@ public class Camera {
     private Vector2 position;
     private Vector2 scale;
 
-    private Vector2 test;
+    private Entity lockOn;
 
     //Camera movement logic
     private Vector2 minClamp,maxClamp;
@@ -42,35 +43,24 @@ public class Camera {
      * Updates the camera's information every frame.
      */
     public void update() {
-        if(test==null) return;
-
-        // Calculate the direction vector
-        Vector2 direction = test.sub(position);
-
-        // Get the distance between the camera and player
-        float distance = direction.mag();
-
-        // Calculate the speed based on the distance (faster as further away)
-        float speed = Math.min(30, distance*0.25f); // Use a cap to avoid too fast movement
-
-        // Normalize the direction to have a unit vector
-        if(direction.mag()!=0)
-            direction = direction.norm();
-
-        // Move the camera smoothly using linear interpolation (lerp)
-        position = position.add(direction.scale((float)(speed * Time.deltaTime)));
-    }
-
-    public void setTest(Vector2 test) {
-        this.test = test;
+        if (lockOn != null) {
+            Vector2 direction = lockOn.getPos().sub(new Vector2((float) 1920 / 2, (float) 1080 / 2)).sub(position);
+            float distance = direction.mag();
+            float speed = Math.min(30, distance * 0.25f);
+            if (direction.mag() != 0)
+                direction = direction.norm();
+            move(direction.scale((float) (speed * Time.deltaTime)));
+        }
+        clampPos();
     }
 
     /**
-     * Translates the camera's position by a given offset.
-     * @param offset (Vector2) The offset to move the camera by.
+     * Locks the camera to follow a specific entity.
+     * To unlock the camera, simply input null.
+     * @param lockOn (Entity) The given entity to follow with the camera.
      */
-    public void translate(Vector2 offset) {
-        position = position.add(offset);
+    public void lockOn(Entity lockOn) {
+        this.lockOn = lockOn;
     }
 
     /**
@@ -126,6 +116,15 @@ public class Camera {
      */
     public void move(float dx, float dy) {
         position = position.add(new Vector2(dx, dy));
+    }
+
+    /**
+     * Moves the camera by a specific amount along the x and y axes.
+     *
+     * @param move (Vector2) The amount to move along both axes in vector form.
+     */
+    public void move(Vector2 move) {
+        move(move.getX(), move.getY());
     }
 
     /**

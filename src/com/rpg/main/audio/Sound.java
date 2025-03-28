@@ -1,16 +1,15 @@
 package com.rpg.main.audio;
 
 import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.AL11;
 import org.lwjgl.stb.STBVorbis;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.libc.LibCStdlib;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.nio.channels.FileChannel;
 
 import static org.lwjgl.openal.AL10.*;
 
@@ -153,6 +152,9 @@ public class Sound {
         AL10.alSourcefv(sourceId,AL10.AL_POSITION, new float[]{pan, 0, -(float)Math.sqrt(1 - pan * pan)});
     }
 
+    /**
+     * Destroys the current audio source.
+     */
     public void destroy() {
         AL10.alDeleteSources(sourceId);
     }

@@ -8,7 +8,8 @@ import com.rpg.main.graphics.Shaders;
 import com.rpg.main.util.Time;
 import org.lwjgl.openal.*;
 
-import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.openal.AL10.AL_INVERSE_DISTANCE;
+import static org.lwjgl.openal.AL10.alDistanceModel;
 import static org.lwjgl.openal.ALC10.*;
 
 public class EventListener implements GLEventListener {
@@ -22,6 +23,11 @@ public class EventListener implements GLEventListener {
         this.game = game;
     }
 
+    /**
+     * Automatically ran upon creation of a new window.
+     *
+     * @param drawable (GLAutoDrawable) The drawable context of the window.
+     */
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
@@ -34,17 +40,29 @@ public class EventListener implements GLEventListener {
         gl.glClearColor(0,0,0,1);
     }
 
+    /**
+     * Automatically ran when window is closed.
+     * @param drawable (GLAutoDrawable) The drawable context of the window.
+     */
     @Override
     public void dispose(GLAutoDrawable drawable) {
         cleanupAudioDevices();
         drawable.getAnimator().stop();
     }
 
+    /**
+     * Cleans up all the audio devices after the game has been run
+     * to prevent initialization errors of the audio context on future runs.
+     */
     public void cleanupAudioDevices() {
         alcDestroyContext(audioContext);
         alcCloseDevice(audioDevice);
     }
 
+    /**
+     * Automatically ran everytime the screen is rendered. Called every frame.
+     * @param drawable (GLAutoDrawable) The drawable context of the window.
+     */
     @Override
     public void display(GLAutoDrawable drawable) {
         deltaTime();
@@ -66,6 +84,14 @@ public class EventListener implements GLEventListener {
         lastTime = now;
     }
 
+    /**
+     * Automatically called everytime the window size is changed in any way.
+     * @param drawable the triggering {@link GLAutoDrawable}
+     * @param x viewport x-coord in pixel units
+     * @param y viewport y-coord in pixel units
+     * @param width viewport width in pixel units
+     * @param height viewport height in pixel units
+     */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
@@ -73,7 +99,7 @@ public class EventListener implements GLEventListener {
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
 
-        gl.glOrtho(-10,10,10,-10,-1,1);
+        gl.glOrtho(0, 1920, 1080, 0,-1,1);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
 

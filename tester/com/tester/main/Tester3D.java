@@ -2,13 +2,20 @@ package com.tester.main;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.MouseEvent;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
+import com.rpg.main.graphics.objects.OBJLoader;
 import com.rpg.main.math.vector.Matrix4;
-import com.rpg.main.math.vector.Vector3;
 import com.rpg.main.math.vector.Vector4;
 
+import java.nio.FloatBuffer;
+import java.util.List;
+
 public class Tester3D extends Game {
+    boolean db = false;
+    private int vaoId, vboId;
+
     Vector4[][] hedron = {
             {
                 new Vector4(-100,-100,-100,1),
@@ -49,33 +56,71 @@ public class Tester3D extends Game {
             vec.setZ(vec.getZ()/vec.getW());
         }
     }
+    private float[] transformedVertices;
 
     @Override
     public void draw(GL2 gl) {
-        // Render loop
-        gl.glBegin(GL2.GL_LINES);
-        for (int i = 0; i < 8; i++) {
-            int v = i % 4, f = i / 4;
-            gl.glColor3f(1, 1, 1);
-
-            Vector4 transformed1 = mat.mul(hedron[f][v]);
-            Vector4 transformed2 = mat.mul(hedron[f][(v + 1) % 4]);
-            Vector4 transformed3 = mat.mul(hedron[f][v]);
-            Vector4 transformed4 = mat.mul(hedron[(f + 1) % 2][v]);
-
-            perspectiveDivide(transformed1);
-            perspectiveDivide(transformed2);
-            perspectiveDivide(transformed3);
-            perspectiveDivide(transformed4);
-
-            // Apply perspective divide here if needed (for 3D to 2D conversion)
-            gl.glVertex3f(transformed1.getX(), transformed1.getY(), 0);
-            gl.glVertex3f(transformed2.getX(), transformed2.getY(), 0);
-            gl.glVertex3f(transformed3.getX(), transformed3.getY(), 0);
-            gl.glVertex3f(transformed4.getX(), transformed4.getY(), 0);
+        List<Vector4> vertices = OBJLoader.loadWireframeOBJ("res/monkey.obj");
+        if (vertices == null) {
+            System.err.println("Failed to load OBJ file!");
+            return;
         }
-        gl.glEnd();
-        gl.glFlush();
+
+        transformedVertices = new float[vertices.size() * 3];
+
+        // Apply matrix transformations
+        for (int i = 0; i < vertices.size(); i++) {
+            Vector4 transformed = mat.mul(vertices.get(i)); // Apply your matrix
+            perspectiveDivide(transformed); // Divide by w for perspective projection
+            transformedVertices[i * 3] = transformed.getX();
+            transformedVertices[i * 3 + 1] = transformed.getY();
+            transformedVertices[i * 3 + 2] = transformed.getZ();
+        }
+
+        int[] buffers = new int[2];
+        gl.glGenVertexArrays(1, buffers, 0);
+        vaoId = buffers[0];
+        gl.glGenBuffers(1, buffers, 1);
+        vboId = buffers[1];
+
+        gl.glBindVertexArray(vaoId);
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, vboId);
+        gl.glBufferData(GL.GL_ARRAY_BUFFER, transformedVertices.length * Float.BYTES,
+                FloatBuffer.wrap(transformedVertices), GL.GL_STATIC_DRAW);
+
+        gl.glEnableVertexAttribArray(0);
+        gl.glVertexAttribPointer(0, 3, GL.GL_FLOAT, false, 3 * Float.BYTES, 0);
+
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+        gl.glBindVertexArray(0);
+        // Render loop
+//        gl.glBegin(GL2.GL_LINES);
+//        for (int i = 0; i < 8; i++) {
+//            int v = i % 4, f = i / 4;
+//            gl.glColor3f(1, 1, 1);
+//
+//            Vector4 transformed1 = mat.mul(hedron[f][v]);
+//            Vector4 transformed2 = mat.mul(hedron[f][(v + 1) % 4]);
+//            Vector4 transformed3 = mat.mul(hedron[f][v]);
+//            Vector4 transformed4 = mat.mul(hedron[(f + 1) % 2][v]);
+//
+//            perspectiveDivide(transformed1);
+//            perspectiveDivide(transformed2);
+//            perspectiveDivide(transformed3);
+//            perspectiveDivide(transformed4);
+//
+//            // Apply perspective divide here if needed (for 3D to 2D conversion)
+//            gl.glVertex3f(transformed1.getX(), transformed1.getY(), 0);
+//            gl.glVertex3f(transformed2.getX(), transformed2.getY(), 0);
+//            gl.glVertex3f(transformed3.getX(), transformed3.getY(), 0);
+//            gl.glVertex3f(transformed4.getX(), transformed4.getY(), 0);
+//        }
+//        gl.glEnd();
+//        gl.glFlush();
+
+        gl.glBindVertexArray(vaoId);
+        gl.glDrawArrays(GL.GL_LINES, 0, transformedVertices.length / 3);
+        gl.glBindVertexArray(0);
 
         // Render the object
 //        gl.glBegin(GL2.GL_LINES);
@@ -127,9 +172,9 @@ public class Tester3D extends Game {
         double r = Math.toRadians(t);
 
         Matrix4 translationMatrix = new Matrix4(new float[][] {
-                {1,0,0,10},
-                {0,1,0,10},
-                {0,0,1,-250},
+                {1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, -3},
                 {0,0,0,1}
         });
 

@@ -10,11 +10,23 @@ public abstract class Entity {
     protected Polygon hitbox;
 
     /**
+     * Creates an entity with a defined hitbox and position.
+     *
+     * @param pos    (Vector2) The defined position to place the player at.
+     * @param hitbox (Polygon) The defined hitbox to give to the created entity.
+     */
+    public Entity(Vector2 pos, Polygon hitbox) {
+        this.hitbox = hitbox;
+        this.pos = pos;
+        velocity = new Vector2();
+    }
+
+    /**
      * Creates an entity with a defined hitbox.
      * @param hitbox (Polygon) The defined hitbox to give to the created entity.
      */
     public Entity(Polygon hitbox) {
-        this.hitbox = hitbox;
+        this(new Vector2(),hitbox);
     }
 
     /**
@@ -49,6 +61,38 @@ public abstract class Entity {
     }
 
     /**
+     * Adds a vector to the position vector. Usually the velocity.
+     *
+     * @param vec (Vector2) The new vector to increase position by.
+     */
+    public void move(Vector2 vec) {
+        this.pos = pos.add(vec);
+        this.hitbox.setPos(getPos());
+    }
+
+    /**
+     * Accelerates the entity by a Vector2 by increasing the velocity vector.
+     *
+     * @param vec (Vector2) The vector to accelerate by.
+     */
+    public void acc(Vector2 vec) {
+        this.velocity = velocity.add(vec);
+    }
+
+    /**
+     * Collides with an inputted hitbox.
+     *
+     * @param hitbox (Polygon) The inputted hitbox to collide with.
+     */
+    public void collide(Polygon hitbox) {
+        Vector2 vec;
+        if ((vec = this.hitbox.sat(hitbox)) != null) {
+            setVelY(5);
+            move(vec);
+        }
+    }
+
+    /**
      * Sets the position of the entity.
      * @param pos (Vector) The new position to move the entity to.
      */
@@ -62,6 +106,24 @@ public abstract class Entity {
      */
     public void setVelocity(Vector2 velocity) {
         this.velocity = velocity;
+    }
+
+    /**
+     * Set just the X component of the velocity vector.
+     *
+     * @param velX (float) The new X component.
+     */
+    public void setVelX(float velX) {
+        this.velocity.setX(velX);
+    }
+
+    /**
+     * Set just the Y component of the velocity vector.
+     *
+     * @param velY (float) The new Y component.
+     */
+    public void setVelY(float velY) {
+        this.velocity.setY(velY);
     }
 
     /**

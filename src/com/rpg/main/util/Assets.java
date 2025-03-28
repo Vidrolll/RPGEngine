@@ -11,6 +11,19 @@ public class Assets {
     //HashMap of all sounds in the asset pool.
     private static final HashMap<String,Sound> sounds = new HashMap<>();
 
+    //Initializes all assets into the asset pool. Automatically ran the first time the Assets class is used.
+    static {
+        //TEXTURES
+        addTexture("crossTile", "textures/crossTile.png");
+        addTexture("emptyTile", "textures/emptyTile.png");
+        addTexture("testTile", "textures/testTile.png");
+
+        //SOUNDS
+        addSound("entrance1", "sounds/entrance.ogg", true);
+        addSound("entrance2", "sounds/entrance2.ogg", true);
+        addSound("entrance_code", "sounds/entrance_code.ogg", true);
+    }
+
     /**
      * Returns an OpenGL texture from the asset pool.
      * @param texture (String) The texture to grab.
@@ -46,20 +59,5 @@ public class Assets {
      */
     public static void addSound(String sound, String path, boolean loops) {
         sounds.put(sound,new Sound(path,loops));
-    }
-
-    /**
-     * Initializes all assets into the asset pool. Should only be run on startup.
-     */
-    public static void initialize() {
-        //TEXTURES
-        addTexture("crossTile","textures/crossTile.png");
-        addTexture("emptyTile","textures/emptyTile.png");
-        addTexture("testTile","textures/testTile.png");
-
-        //SOUNDS
-        addSound("entrance1","sounds/entrance.ogg",true);
-        addSound("entrance2","sounds/entrance2.ogg",true);
-        addSound("entrance_code","sounds/entrance_code.ogg",true);
     }
 }

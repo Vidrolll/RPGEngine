@@ -2,7 +2,10 @@ package com.rpg.main.graphics;
 
 import com.jogamp.opengl.GL2;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 
 public class Shaders {
@@ -12,6 +15,13 @@ public class Shaders {
         return shaderPrograms.get(shader);
     }
 
+    /**
+     * Creates a new shader.
+     *
+     * @param gl     (GL2) The OpenGL object to utilize to create the shader.
+     * @param shader (String) The name of the shader to initialize, should be the same
+     *               as the names of the vertex and fragment shaders in the files.
+     */
     public static void createShader(GL2 gl, String shader) {
         int[] shaderSupport = new int[1];
         gl.glGetIntegerv(GL2.GL_MAX_VERTEX_UNIFORM_COMPONENTS, shaderSupport, 0);
@@ -47,6 +57,12 @@ public class Shaders {
         shaderPrograms.put(shader,shaderProgram);
     }
 
+    /**
+     * Prints any errors detected when creating a new shader.
+     * @param gl (GL2) The OpenGL object to utilize to create the shader.
+     * @param shader (int) The OpenGL index of the shader.
+     * @param shaderType (String) The type of shader, either fragment or vertex.
+     */
     private static void printErrors(GL2 gl, int shader, String shaderType) {
         int[] compiled = new int[1];
         gl.glGetShaderiv(shader, GL2.GL_COMPILE_STATUS, compiled, 0);
@@ -65,6 +81,11 @@ public class Shaders {
         }
     }
 
+    /**
+     * Detects if there were any errors in creation of a shader program.
+     * @param gl (GL2) The OpenGL object to utilize to create the shader.
+     * @param program (int) The OpenGL index of the shader program.
+     */
     private static void checkProgramErrors(GL2 gl, int program) {
         int[] linked = new int[1];
         gl.glGetProgramiv(program, GL2.GL_LINK_STATUS, linked, 0);
@@ -81,6 +102,11 @@ public class Shaders {
         }
     }
 
+    /**
+     * Reads the entirety of a shader file and returns it as a formatted String.
+     * @param path (String) The path of the shader file to read.
+     * @return (String) The entire file as a single String.
+     */
     private static String readShaderSource(String path) {
         StringBuilder source = new StringBuilder();
 
