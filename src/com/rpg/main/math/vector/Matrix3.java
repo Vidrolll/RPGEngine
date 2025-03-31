@@ -115,7 +115,7 @@ public class Matrix3 {
      * @return (Vector2) The resulting vector after matrix multiplication.
      */
     public Vector2 mul(Vector2 vec) {
-        Vector3 mv = mul(new Vector3(vec.getX(), vec.getY(), 1));
+        Vector3 mv = mul(new Vector3(vec.getX(), vec.getY(), 0));
         return new Vector2(mv.getX(), mv.getY());
     }
 }
