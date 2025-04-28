@@ -1,6 +1,8 @@
 package com.rpg.main.graphics;
 
 import com.rpg.main.entity.Entity;
+import com.rpg.main.graphics.opengl.Renderer;
+import com.rpg.main.math.vector.Matrix4;
 import com.rpg.main.math.vector.Vector2;
 import com.rpg.main.util.Time;
 
@@ -8,6 +10,8 @@ public class Camera {
     //Vectors for the cameras position and scale
     private Vector2 position;
     private Vector2 scale;
+    private Vector2 scalePos;
+    private float rotationAngle = 0f;
 
     private Entity lockOn;
 
@@ -15,28 +19,30 @@ public class Camera {
     private Vector2 minClamp,maxClamp;
 
     /**
-     * Creates a new camera object at the inputted position and scale.
+     * Creates a new camera object at the inputted position and scale and scale position.
      * @param position (Vector2) The position to place the camera at.
      * @param scale (Vector2) The scale to have the camera at.
+     * @param scalePos (Vector2) The position to scale the camera at.
      */
-    public Camera(Vector2 position, Vector2 scale) {
+    public Camera(Vector2 position, Vector2 scale, Vector2 scalePos) {
         this.position = position;
         this.scale = scale;
+        this.scalePos = scalePos;
     }
 
     /**
-     * Creates a new camera object at the inputted position with a scale of (1,1).
+     * Creates a new camera object at the inputted position with a scale of (1,1) and a scale position of (0,0).
      * @param position (Vector2) The position to place the camera at.
      */
     public Camera(Vector2 position) {
-        this(position,new Vector2(1,1));
+        this(position, new Vector2(1, 1), new Vector2(0, 0));
     }
 
     /**
-     * Creates a new camera at position (0,0) with scale of (1,1).
+     * Creates a new camera at position (0,0) with scale of (1,1) and a scale position of (0,0).
      */
     public Camera() {
-        this(new Vector2(),new Vector2(1,1));
+        this(new Vector2(), new Vector2(1, 1), new Vector2(0, 0));
     }
 
     /**
@@ -44,7 +50,7 @@ public class Camera {
      */
     public void update() {
         if (lockOn != null) {
-            Vector2 direction = lockOn.getPos().sub(new Vector2((float) 1920 / 2, (float) 1080 / 2)).sub(position);
+            Vector2 direction = getScreenCenter().sub(lockOn.getPos()).sub(position);
             float distance = direction.mag();
             float speed = Math.min(30, distance * 0.25f);
             if (direction.mag() != 0)
@@ -52,6 +58,54 @@ public class Camera {
             move(direction.scale((float) (speed * Time.deltaTime)));
         }
         clampPos();
+    }
+
+    /**
+     * Returns the center of the screen based off the window size.
+     *
+     * @return (Vector2) The center position of the screen.
+     */
+    public Vector2 getScreenCenter() {
+        return new Vector2(Renderer.getWindow().getWidth() / 2f, Renderer.getWindow().getHeight() / 2f);
+    }
+
+    /**
+     * Returns the current transformation matrix.
+     *
+     * @return (Matrix4) The current transformation matrix.
+     */
+    public Matrix4 getTransformMatrix() {
+        Matrix4 scalePosMatrix = new Matrix4(new float[][]{
+                {1, 0, 0, scalePos.getX()},
+                {0, 1, 0, scalePos.getY()},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        });
+        Matrix4 negScalePosMatrix = new Matrix4(new float[][]{
+                {1, 0, 0, -scalePos.getX()},
+                {0, 1, 0, -scalePos.getY()},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        });
+        Matrix4 scaleMatrix = new Matrix4(new float[][]{
+                {scale.getX(), 0, 0, 0},
+                {0, scale.getY(), 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        });
+        Matrix4 translationMatrix = new Matrix4(new float[][]{
+                {1, 0, 0, position.getX()},
+                {0, 1, 0, position.getY()},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        });
+        Matrix4 rotationMatrix = new Matrix4(new float[][]{
+                {(float) Math.cos(rotationAngle), (float) -Math.sin(rotationAngle), 0, 0},
+                {(float) Math.sin(rotationAngle), (float) Math.cos(rotationAngle), 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1}
+        });
+        return scalePosMatrix.mul(scaleMatrix).mul(negScalePosMatrix).mul(translationMatrix).mul(rotationMatrix);
     }
 
     /**
@@ -69,6 +123,24 @@ public class Camera {
      */
     public void zoom(float scaleFactor) {
         scale = scale.scale(scaleFactor);
+        if (scale.getX() < 0.5f) scale.setX(0.5f);
+        if (scale.getY() < 0.5f) scale.setY(0.5f);
+    }
+
+    /**
+     * Scales the camera by a specified factor into a specified point.
+     *
+     * @param scaleFactor (float) The factor by which to scale the camera.
+     * @param scalePos    (Vector2) The position by which to scale the camera into.
+     */
+    public void zoom(float scaleFactor, Vector2 scalePos) {
+        Vector2 before = getTransformMatrix().inverse().mul(scalePos);
+        this.scalePos = scalePos;
+        this.scale = scale.scale(scaleFactor);
+        if (scale.getX() < 0.5f) scale.setX(0.5f);
+        if (scale.getY() < 0.5f) scale.setY(0.5f);
+        Vector2 after = getTransformMatrix().inverse().mul(scalePos);
+        move(after.sub(before));
     }
 
     /**
@@ -107,6 +179,7 @@ public class Camera {
     public void reset() {
         position = new Vector2(0, 0);
         scale = new Vector2(1, 1);
+        scalePos = new Vector2(0,0);
     }
 
     /**
@@ -148,7 +221,18 @@ public class Camera {
      * @param scale (Vector2) The new scale to set the camera to.
      */
     public void setScale(Vector2 scale) {
+        if (scale.getX() < 0.5f) scale.setX(0.5f);
+        if (scale.getY()<0.5f) scale.setY(0.5f);
         this.scale = scale;
+    }
+
+    /**
+     * Grabs the camera's current scale position.
+     *
+     * @return (Vector2) The current scale position of the camera.
+     */
+    public Vector2 getScalePos() {
+        return scalePos;
     }
 
     /**
@@ -157,5 +241,14 @@ public class Camera {
      */
     public Vector2 getScale() {
         return scale;
+    }
+
+    /**
+     * Sets the camera's scale position to a new value.
+     *
+     * @param scalePos (Vector2) The new scale position to set the camera to.
+     */
+    public void setScalePos(Vector2 scalePos) {
+        this.scalePos = scalePos;
     }
 }

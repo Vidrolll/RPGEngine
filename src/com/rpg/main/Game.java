@@ -10,7 +10,6 @@ import com.rpg.main.graphics.opengl.Renderer;
  * Creating a new game utilizing this engine should be done by making a
  * main class that extends this class, and creating a new instance of that class.
  */
-
 public abstract class Game {
     /**
      * The current game camera object.
@@ -31,15 +30,32 @@ public abstract class Game {
      */
     public void camera(GL2 gl) {
         CAMERA.update();
-        gl.glPushMatrix();
-        gl.glTranslatef(-CAMERA.getPosition().getX(), -CAMERA.getPosition().getY(), 0.0f);
-        gl.glScalef(CAMERA.getScale().getX(), CAMERA.getScale().getY(), 1.0f);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
+        gl.glLoadIdentity();
+        gl.glLoadMatrixf(CAMERA.getTransformMatrix().toArray(), 0);
+//        float[] mat = CAMERA.getTransformMatrix().toArray();
+//
+//        gl.glMatrixMode(GL2.GL_MODELVIEW);
+//        gl.glLoadMatrixf(mat, 0); // Or glMultMatrixf() if stacking
+
+//        gl.glTranslatef(CAMERA.getScalePos().getX(),CAMERA.getScalePos().getY(),0.0f);
+//        gl.glScalef(CAMERA.getScale().getX(), CAMERA.getScale().getY(), 1.0f);
+//        gl.glTranslatef(-CAMERA.getScalePos().getX(),-CAMERA.getScalePos().getY(),0.0f);
+//        gl.glTranslatef(CAMERA.getPosition().getX(), CAMERA.getPosition().getY(), 0.0f);
+//        gl.glLoadMatrixf(CAMERA.getTransformMatrix().toArray(),0);
+
     }
 
     /**
      * The draw function of the game, locked to the framerate.
      */
     public abstract void draw(GL2 gl);
+
+    /**
+     * Helper function to draw GUI elements of the game. Ran every frame after resetting the transform of the screen.
+     */
+    public void drawGUI(GL2 gl) {
+    }
 
     /**
      * The update function of the game, locked to the framerate.

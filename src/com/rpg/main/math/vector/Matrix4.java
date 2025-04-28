@@ -188,8 +188,18 @@ public class Matrix4 {
             y /= w;
             z /= w;
         }
-        System.out.println("w = " + w);
         return new Vector3(x, y, z);
+    }
+
+    /**
+     * Multiplies this matrix with a Vector2 and returns the resulting vector.
+     *
+     * @param v (Vector2) The input Vector2.
+     * @return (Vector2) The resulting Vector2 after matrix multiplication.
+     */
+    public Vector2 mul(Vector2 v) {
+        Vector3 vec = mul(new Vector3(v.getX(), v.getY(), 1));
+        return new Vector2(vec.getX(), vec.getY());
     }
 
     /**
@@ -332,5 +342,19 @@ public class Matrix4 {
                 matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3],
                 matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3],
                 matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
+    }
+
+    /**
+     * Returns all the values in the matrix as a one dimensional array
+     *
+     * @return (float[]) The array of values.
+     */
+    public float[] toArray() {
+        return new float[]{
+                matrix[0][0], matrix[1][0], matrix[2][0], matrix[3][0],
+                matrix[0][1], matrix[1][1], matrix[2][1], matrix[3][1],
+                matrix[0][2], matrix[1][2], matrix[2][2], matrix[3][2],
+                matrix[0][3], matrix[1][3], matrix[2][3], matrix[3][3]
+        };
     }
 }

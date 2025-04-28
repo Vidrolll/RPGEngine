@@ -51,13 +51,10 @@ public class Vector2 {
      * Create the unit vector of the host vector.
      * If the magnitude of the vector is zero, this function will return an empty vector.
      * @return (Vector2) The unit vector.
-     * @throws IllegalArgumentException if the vector has zero magnitude.
      */
     public Vector2 norm() {
         float mag = mag();
-        if (mag == 0) {
-            throw new IllegalArgumentException("Cannot normalize a zero vector.");
-        }
+        if (mag == 0) return new Vector2(0, 0);
         return new Vector2(x / mag, y / mag);
     }
 
@@ -181,6 +178,13 @@ public class Vector2 {
      */
     public Vector2 copy() {
         return new Vector2(x,y);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Vector2)
+            return ((Vector2) obj).getX() == getX() && ((Vector2) obj).getY() == getY();
+        return false;
     }
 
     /**

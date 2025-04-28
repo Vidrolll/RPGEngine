@@ -25,7 +25,7 @@ public class Shaders {
     public static void createShader(GL2 gl, String shader) {
         int[] shaderSupport = new int[1];
         gl.glGetIntegerv(GL2.GL_MAX_VERTEX_UNIFORM_COMPONENTS, shaderSupport, 0);
-        System.out.println("Max Vertex Uniform Components: " + shaderSupport[0]);
+//        System.out.println("Max Vertex Uniform Components: " + shaderSupport[0]);
 
         int shaderProgram = gl.glCreateProgram();
         int vertexShader = gl.glCreateShader(GL2.GL_VERTEX_SHADER);
@@ -48,7 +48,7 @@ public class Shaders {
         // Check if shaders exist before linking
         int[] attachedShaders = new int[1];
         gl.glGetProgramiv(shaderProgram, GL2.GL_ATTACHED_SHADERS, attachedShaders, 0);
-        System.out.println("Attached Shaders: " + attachedShaders[0]);
+//        System.out.println("Attached Shaders: " + attachedShaders[0]);
 
         gl.glLinkProgram(shaderProgram);
         checkProgramErrors(gl, shaderProgram); // Check for link errors
@@ -68,7 +68,7 @@ public class Shaders {
         gl.glGetShaderiv(shader, GL2.GL_COMPILE_STATUS, compiled, 0);
 
         if (compiled[0] == GL2.GL_FALSE) {
-            System.out.println(shaderType + " shader compilation failed.");
+//            System.out.println(shaderType + " shader compilation failed.");
 
             int[] logLength = new int[1];
             gl.glGetShaderiv(shader, GL2.GL_INFO_LOG_LENGTH, logLength, 0);
@@ -76,7 +76,7 @@ public class Shaders {
             if (logLength[0] > 0) {
                 byte[] log = new byte[logLength[0]];
                 gl.glGetShaderInfoLog(shader, logLength[0], null, 0, log, 0);
-                System.out.println(shaderType + " Shader Log: " + new String(log));
+//                System.out.println(shaderType + " Shader Log: " + new String(log));
             }
         }
     }
@@ -90,14 +90,14 @@ public class Shaders {
         int[] linked = new int[1];
         gl.glGetProgramiv(program, GL2.GL_LINK_STATUS, linked, 0);
         if (linked[0] == GL2.GL_FALSE) {
-            System.out.println("Shader program linking failed.");
+//            System.out.println("Shader program linking failed.");
 
             int[] logLength = new int[1];
             gl.glGetProgramiv(program, GL2.GL_INFO_LOG_LENGTH, logLength, 0);
             if (logLength[0] > 0) {
                 byte[] log = new byte[logLength[0]];
                 gl.glGetProgramInfoLog(program, logLength[0], null, 0, log, 0);
-                System.out.println("Program Log: " + new String(log));
+//                System.out.println("Program Log: " + new String(log));
             }
         }
     }

@@ -72,7 +72,8 @@ public class EventListener implements GLEventListener {
         game.camera(gl);
         game.update();
         game.draw(gl);
-        gl.glPopMatrix();
+        gl.glLoadIdentity();
+        game.drawGUI(gl);
     }
 
     /**
@@ -96,11 +97,9 @@ public class EventListener implements GLEventListener {
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL2 gl = drawable.getGL().getGL2();
-
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-
-        gl.glOrtho(0, 1920, 1080, 0,-1,1);
+        gl.glOrtho(0, Renderer.screenWidth, Renderer.screenHeight, 0, -1, 1);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
 
@@ -112,16 +111,16 @@ public class EventListener implements GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
         Shaders.createShader(gl,"lighting");
         Shaders.createShader(gl,"wrap");
-
         alDistanceModel(AL_INVERSE_DISTANCE);
-
         AL10.alListener3f(AL10.AL_POSITION, 0, 0, 0);
         AL10.alDistanceModel(AL10.AL_INVERSE_DISTANCE);
-
         gl.setSwapInterval(1);
-        gl.glClearColor(0,0,0,1);
+        gl.glClearColor(0, 0, 0, 1);
+        gl.glMatrixMode(GL2.GL_PROJECTION);
+        gl.glLoadIdentity();
+        gl.glOrtho(0, Renderer.screenWidth, Renderer.screenHeight, 0, -1, 1);
+        gl.glMatrixMode(GL2.GL_MODELVIEW);
     }
 }

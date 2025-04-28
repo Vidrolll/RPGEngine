@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tester" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/libs" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -14,5 +15,6 @@
     <orderEntry type="library" name="lwjgl.osgi.openal" level="project" />
     <orderEntry type="library" name="lwjgl.osgi.stb" level="project" />
     <orderEntry type="library" name="googlecode.json.simple" level="project" />
+    <orderEntry type="library" name="lwjgl.glfw" level="project" />
   </component>
 </module>

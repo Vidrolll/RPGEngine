@@ -13,8 +13,8 @@ public class Renderer {
     private static GLProfile profile;
 
     //Variables for the resolution data
-    public static int screenWidth = 640;
-    public static int screenHeight = 360;
+    public static int screenWidth = 1920;
+    public static int screenHeight = 1200;
 
     /**
      * Initialize a window using OpenGL
@@ -25,7 +25,7 @@ public class Renderer {
         GLCapabilities caps = new GLCapabilities(profile);
 
         window = GLWindow.create(caps);
-        window.setSize(1920,1080);
+        window.setSize(screenWidth, screenHeight);
         window.setResizable(true);
         window.addGLEventListener(new EventListener(game));
         window.addMouseListener(new InputHandler(game));
