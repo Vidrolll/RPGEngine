@@ -36,7 +36,7 @@ public class Renderer {
         Animator animator = new Animator(window);
         animator.start();
 
-        window.setFullscreen(true);
+        window.setFullscreen(false);
         window.setVisible(true);
         window.requestFocus();
     }

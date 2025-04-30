@@ -9,22 +9,14 @@ import com.rpg.main.graphics.opengl.Renderer;
 import com.rpg.main.level.Level;
 import com.rpg.main.level.LevelLoader;
 import com.rpg.main.util.Assets;
-import org.lwjgl.openal.AL10;
 
 public class Main extends Game {
     Level level;
 
     public Main() {
-//        s3.setTransform(new Matrix3(new float[][]{
-//                {5000*(float)Math.cos(Math.toRadians(0)),-(float)Math.sin(Math.toRadians(0)),0},
-//                {(float)Math.sin(Math.toRadians(0)),(float)Math.cos(Math.toRadians(0)),0},
-//                {0,0,1}
-//        }));
-        AL10.alListener3f(AL10.AL_POSITION,0,0,0);
-        Assets.getSound("entrance_code").play();
+//        AL10.alListener3f(AL10.AL_POSITION,0,0,0);
+//        Assets.getSound("entrance_code").play();
         level = LevelLoader.loadLevel("test");
-
-
     }
 
     float x=0,y=0;

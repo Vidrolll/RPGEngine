@@ -3,6 +3,7 @@ package com.rpg.main.entity;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.math.Polygon;
 import com.rpg.main.math.vector.Vector2;
+import com.rpg.main.tiles.Tile;
 
 public abstract class Entity {
     //Entity variables
@@ -80,14 +81,15 @@ public abstract class Entity {
     }
 
     /**
-     * Collides with an inputted hitbox.
+     * Collides with an inputted tile.
      *
-     * @param hitbox (Polygon) The inputted hitbox to collide with.
+     * @param tile (Tile) The inputted tile to collide with.
      */
-    public void collide(Polygon hitbox) {
+    public void collide(Tile tile) {
         Vector2 vec;
-        if ((vec = this.hitbox.sat(hitbox)) != null) {
+        if ((vec = this.hitbox.sat(tile.getHitbox())) != null) {
             setVelY(5);
+            tile.interact(this);
             move(vec);
         }
     }

@@ -8,6 +8,7 @@ import com.rpg.main.graphics.Shaders;
 import com.rpg.main.util.Time;
 import org.lwjgl.openal.*;
 
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.openal.AL10.AL_INVERSE_DISTANCE;
 import static org.lwjgl.openal.AL10.alDistanceModel;
 import static org.lwjgl.openal.ALC10.*;
@@ -111,6 +112,7 @@ public class EventListener implements GLEventListener {
     @Override
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
+        glfwInit();
         Shaders.createShader(gl,"lighting");
         Shaders.createShader(gl,"wrap");
         alDistanceModel(AL_INVERSE_DISTANCE);
@@ -122,5 +124,10 @@ public class EventListener implements GLEventListener {
         gl.glLoadIdentity();
         gl.glOrtho(0, Renderer.screenWidth, Renderer.screenHeight, 0, -1, 1);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
+        for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; jid++) {
+            if (glfwJoystickPresent(jid)) {
+                System.out.println("Joystick " + jid + " is present: " + glfwGetJoystickName(jid));
+            }
+        }
     }
 }

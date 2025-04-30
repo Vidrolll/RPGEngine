@@ -3,8 +3,8 @@ package com.rpg.main.level;
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
-import com.rpg.main.math.Polygon;
 import com.rpg.main.player.PlayerController;
+import com.rpg.main.tiles.Tile;
 
 import java.util.HashMap;
 
@@ -12,7 +12,7 @@ public class Level {
     /**
      * Holds the information of where each hitbox on the map is.
      */
-    public HashMap<String, Polygon> map = new HashMap<>();
+    public HashMap<String, Tile> map = new HashMap<>();
 
     /**
      * The controller the player will use to interact with the level.
@@ -33,7 +33,7 @@ public class Level {
      */
     public void update() {
         controller.update();
-        for (Polygon poly : map.values()) controller.collide(poly);
+        for (Tile tile : map.values()) controller.collide(tile);
     }
 
     /**
@@ -43,7 +43,7 @@ public class Level {
      */
     public void render(GL2 gl) {
         controller.render(gl);
-        for (Polygon poly : map.values()) poly.renderPolygon(gl);
+        for (Tile tile : map.values()) tile.render(gl);
     }
 
     /**

@@ -6,7 +6,12 @@ import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
 import com.rpg.main.entity.Entity;
-import com.rpg.main.math.Polygon;
+import com.rpg.main.tiles.Tile;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 public class PlayerController {
     //Variables for the player controller.
@@ -28,18 +33,46 @@ public class PlayerController {
     }
 
     /**
-     * Cause the player controller to collide with an inputted polygon.
-     *
-     * @param poly (Polygon) The polygon to collide with.
-     */
-    public void collide(Polygon poly) {
-        player.collide(poly);
-    }
-
-    /**
      * Updates the player.
      */
+    boolean jump = false;
+
+    /**
+     * Cause the player controller to collide with an inputted tile.
+     *
+     * @param tile (Tile) The tile to collide with.
+     */
+    public void collide(Tile tile) {
+        player.collide(tile);
+    }
+
     public void update() {
+        for (int jid = GLFW_JOYSTICK_1; jid <= GLFW_JOYSTICK_LAST; jid++) {
+            if (glfwJoystickPresent(jid)) {
+                FloatBuffer axes = glfwGetJoystickAxes(jid);
+                ByteBuffer buttons = glfwGetJoystickButtons(jid);
+
+                if (axes != null) {
+                    float lx = axes.get(0); // Left stick X
+                    float ly = axes.get(1); // Left stick Y
+                    if (Math.abs(lx) > 0.1)
+                        player.setVelX(5 * lx);
+                    else
+                        player.setVelX(0);
+                }
+
+                if (buttons != null) {
+                    if (buttons.get(0) == GLFW_PRESS && !jump) {
+                        jump = true;
+                        System.out.println("jump");
+                        player.setVelY(-20);
+                    } else if (buttons.get(0) != GLFW_PRESS) jump = false;
+                    if (buttons.get(1) == GLFW_PRESS) {
+                        System.exit(1);
+                    }
+                }
+            }
+        }
         player.update();
     }
 

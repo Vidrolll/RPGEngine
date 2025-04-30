@@ -14,6 +14,7 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class LevelLoader {
@@ -41,7 +42,7 @@ public class LevelLoader {
             JSONObject tileArray = (JSONObject) levelData.get("tiles");
             for (int i = 0; i < tileArray.size(); i++) {
                 String tile = (String) tileArray.keySet().toArray()[i];
-                level.map.put(tile, createPolygon((JSONArray) (tileArray.values().toArray()[i])));
+                level.map.put(tile, createTile((JSONArray) (tileArray.values().toArray()[i])));
             }
             return level;
         } catch (IOException | ParseException e) {
@@ -65,15 +66,23 @@ public class LevelLoader {
     }
 
     /**
-     * Helper method that creates a new Polygon.
+     * Helper method that creates a new Tile.
      *
      * @param polyData (JSONArray) The inputted JSON tile array to get polygon information from.
-     * @return (Polygon) The polygon this level will use.
+     * @return (Tile) The tile this level will use.
      */
-    private static Polygon createPolygon(JSONArray polyData) {
+    private static Tile createTile(JSONArray polyData) {
         Vector2[] polygon = new Vector2[(polyData.size() - 2) / 2];
         for (int i = 0; i < polygon.length; i++)
-            polygon[i] = new Vector2((long) (polyData.get((i * 2) + 2)), (long) (polyData.get((i * 2) + 3)));
-        return new Polygon(new Vector2((long) polyData.get(0), (long) polyData.get(1)), polygon);
+            polygon[i] = new Vector2((long) (polyData.get((i * 2) + 3)), (long) (polyData.get((i * 2) + 4)));
+        Polygon hitbox = new Polygon(new Vector2((long) polyData.get(1), (long) polyData.get(2)), polygon);
+        try {
+            return (Tile) LevelLoader.class.getClassLoader()
+                    .loadClass("com.rpg.main.tiles.tileTypes." + polyData.get(0))
+                    .getConstructor(Polygon.class).newInstance(hitbox);
+        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException | InstantiationException |
+                 InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
