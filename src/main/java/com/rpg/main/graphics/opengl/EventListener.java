@@ -5,6 +5,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 import com.rpg.main.Game;
 import com.rpg.main.graphics.Shaders;
+import com.rpg.main.graphics.particle.ParticleHandler;
 import com.rpg.main.util.Time;
 import org.lwjgl.openal.*;
 
@@ -72,7 +73,9 @@ public class EventListener implements GLEventListener {
         gl.glClear(GL2.GL_COLOR_BUFFER_BIT);
         game.camera(gl);
         game.update();
+        ParticleHandler.update();
         game.draw(gl);
+        ParticleHandler.render(gl);
         gl.glLoadIdentity();
         game.drawGUI(gl);
     }

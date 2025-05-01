@@ -5,11 +5,6 @@ import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.opengl.GL2;
 import com.rpg.main.Game;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-
 public class Main extends Game {
     public Main() {
 
