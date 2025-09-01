@@ -5,14 +5,19 @@ import dev.swirlingskies.tile.Tile;
 import java.util.ArrayList;
 
 public class Scene {
-    private final int sceneSize = 512;
-    private final Tile[] tiles = new Tile[sceneSize*sceneSize];
+    public final static int SCENE_SIZE = 512;
+    public final static int TILE_SIZE = 16;
+    private final Tile[] tiles = new Tile[SCENE_SIZE*SCENE_SIZE];
 
-    public void addTile(Tile tile, int x, int y) {
-        tiles[y*sceneSize+x] = tile;
+    public void addTile(Tile tile) {
+        tiles[tile.getPosition().y*SCENE_SIZE+tile.getPosition().x] = tile;
     }
     public void removeTile(int x, int y) {
-        tiles[y*sceneSize+x] = null;
+        tiles[y*SCENE_SIZE+x] = null;
+    }
+
+    public Tile getTile(int x, int y) {
+        return tiles[y*SCENE_SIZE+x];
     }
 
     public void update() {

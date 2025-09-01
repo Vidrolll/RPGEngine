@@ -24,7 +24,6 @@ public class Player extends Entity {
 
     @Override
     public void update() {
-        System.out.println(getDeltaTime());
         if(velocity.length()!=0) position.add(velocity.normalize().mul(5).mul((float)getDeltaTime()));
     }
 }

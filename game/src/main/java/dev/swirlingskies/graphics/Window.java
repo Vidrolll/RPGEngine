@@ -28,7 +28,7 @@ public final class Window {
         logicalH = 720;
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vid = glfwGetVideoMode(monitor);
-        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", NULL, NULL);
+        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", monitor, NULL);
         if (window == NULL) throw new RuntimeException("Window creation failed");
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var pW = stack.mallocInt(1);
