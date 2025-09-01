@@ -8,7 +8,7 @@ public final class Time {
     private static double fps;
     private static double fpsTimer;
 
-    private static float timeScale = 1.0f;
+    private static float timeScale = 30.0f;
 
     public static void init() {
         lastFrameTime = System.nanoTime();

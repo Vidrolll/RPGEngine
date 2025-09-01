@@ -14,12 +14,6 @@ public final class Window {
     private long window;
     private int logicalW, logicalH;
 
-    private Game game;
-
-    public Window(Game game) {
-        this.game = game;
-    }
-
     public void init() {
         if (!glfwInit()) throw new IllegalStateException("GLFW init failed");
         glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
@@ -34,7 +28,7 @@ public final class Window {
         logicalH = 720;
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vid = glfwGetVideoMode(monitor);
-        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", monitor, NULL);
+        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", NULL, NULL);
         if (window == NULL) throw new RuntimeException("Window creation failed");
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var pW = stack.mallocInt(1);
