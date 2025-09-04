@@ -1,7 +1,10 @@
 package dev.swirlingskies;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -10,263 +13,258 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.nio.file.attribute.PosixFilePermission;
-import java.time.Duration;
+import java.security.KeyFactory;
+import java.security.Signature;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 
-/**
- * One-shot auto-updater.
- * Usage:
- *   java -jar updater.jar <manifestUrl> [installDir]
- *
- * Behaviour:
- *  - Reads remote JSON manifest (see UpdateManifest below)
- *  - Compares remote version vs current (from installDir/current.version)
- *  - If newer: downloads archive to temp, verifies sha256, extracts into installDir/<version>
- *  - Updates current.version, then launches the game/launcher (from manifest.launchCommand)
- */
-public final class Updater {
-    private static final Logger log = LoggerFactory.getLogger(Updater.class);
-
+public class Updater {
     private static final String CURRENT_VERSION_FILE = "current.version";
 
-    private final OkHttpClient http = new OkHttpClient.Builder()
-            .callTimeout(Duration.ofSeconds(60))
-            .connectTimeout(Duration.ofSeconds(20))
-            .readTimeout(Duration.ofSeconds(60))
-            .build();
+    private static final OkHttpClient http = new OkHttpClient();
 
-    private final ObjectMapper json = new ObjectMapper();
-
-    public static void main(String[] args) {
-        try {
-            if (args.length < 1) {
-                System.err.println("Usage: java -jar updater.jar <manifestUrl> [installDir]");
-                System.exit(2);
-            }
-            String manifestUrl = args[0];
-            Path installDir = (args.length >= 2)
-                    ? Paths.get(args[1])
-                    : detectInstallDir();
-
-            new Updater().run(manifestUrl, installDir);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    private static Path detectInstallDir() throws IOException {
-        // Directory containing the running JAR (updater)
-        try {
-            Path jar = Paths.get(Updater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            Path dir = Files.isRegularFile(jar) ? jar.getParent() : jar; // runnable from classes folder too
-            return dir.toAbsolutePath().normalize();
-        } catch (Exception e) {
-            throw new IOException("Unable to locate updater JAR directory", e);
-        }
-    }
-
-    private void run(String manifestUrl, Path installDir) throws Exception {
-        log.info("Install dir: {}", installDir);
+    public static void main(String[] args) throws Exception {
+        if(args.length==0) throw new Exception("Must supply a manifest URL");
+        String manifestUrl = args[0];
+        Path installDir = (args.length >= 2) ? Paths.get(args[1]) : detectInstallDir();
         Files.createDirectories(installDir);
 
-        UpdateManifest remote = fetchManifest(manifestUrl);
-        String current = readCurrentVersion(installDir);
-        log.info("Current version: {} | Remote version: {}", current, remote.version);
+        run(manifestUrl, installDir);
+    }
 
-        if (!isNewer(remote.version, current)) {
-            log.info("Up-to-date. Launching existing install.");
+    private static void run(String manifestUrl, Path installDir) throws Exception {
+        String current = readCurrentVersion(installDir);
+        Manifest remote = fetchManifest(manifestUrl);
+
+        if(!isNewer(remote.version, current)) {
+            System.out.println("Up-to-date. Launching existing version.");
             launch(remote, installDir);
             return;
         }
 
-        // Download
         Path tmp = Files.createTempFile("update-", remote.archiveFileName());
         try {
             download(remote.url, tmp);
             verifySha256(tmp, remote.sha256);
-
-            // Extract
             Path targetDir = installDir.resolve(remote.version);
             extractArchive(tmp, targetDir);
-
-            // Write current.version
-            Files.writeString(installDir.resolve(CURRENT_VERSION_FILE), remote.version, StandardCharsets.UTF_8,
-                    StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-
-            log.info("Update applied: {}", targetDir);
+            writeCurrentVersion(installDir, remote.version);
+            System.out.println("Updated to " + remote.version);
         } finally {
-            try { Files.deleteIfExists(tmp); } catch (IOException ignore) {}
+            try {
+                Files.deleteIfExists(tmp);
+            } catch(IOException ignore) {}
         }
-
         launch(remote, installDir);
     }
 
-    private UpdateManifest fetchManifest(String url) throws IOException {
-        log.info("Fetching manifest: {}", url);
-        Request req = new Request.Builder().url(url).build();
-        try (Response resp = http.newCall(req).execute()) {
-            if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code() + " getting manifest");
-            try (InputStream is = Objects.requireNonNull(resp.body()).byteStream()) {
-                return json.readValue(is, UpdateManifest.class);
+    private static void launch(Manifest m, Path installDir) throws IOException {
+        List<String> cmd = new ArrayList<>();
+        if(m.launchCommand != null && !m.launchCommand.isEmpty()) {
+            cmd.addAll(m.launchCommand);
+        } else {
+            String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+            cmd.add(javaBin);
+            cmd.add("-jar");
+            try(DirectoryStream<Path> ds = Files.newDirectoryStream(installDir, "launcher-*.jar")) {
+                for(Path p : ds) {
+                    cmd.add(p.toAbsolutePath().toString());
+                    break;
+                }
             }
+        }
+        System.out.println("Launching: " + cmd);
+        new ProcessBuilder(cmd).directory(installDir.toFile()).inheritIO().start();
+    }
+
+    private static Path detectInstallDir() throws Exception {
+        Path jar = Paths.get(Updater.class.getProtectionDomain().
+                getCodeSource().getLocation().toURI());
+        return (Files.isRegularFile(jar) ? jar.getParent() :
+                jar).toAbsolutePath().normalize();
+    }
+
+    private static String readCurrentVersion(Path dir) {
+        Path f = dir.resolve(CURRENT_VERSION_FILE);
+        if(!Files.exists(f)) return "0.0.0";
+        try {
+            return Files.readString(f, StandardCharsets.UTF_8).trim();
+        } catch(IOException e) {
+            return "0.0.0";
         }
     }
 
-    private String readCurrentVersion(Path installDir) {
-        Path f = installDir.resolve(CURRENT_VERSION_FILE);
-        if (!Files.exists(f)) return "0.0.0"; // default
-        try { return Files.readString(f, StandardCharsets.UTF_8).trim(); }
-        catch (IOException e) { return "0.0.0"; }
-    }
-
-    private boolean isNewer(String a, String b) {
-        // Basic semver-ish compare: split numeric/alpha. Fallback to string compare.
+    private static boolean isNewer(String a, String b) {
         try {
-            int[] A = parseVersion(a); int[] B = parseVersion(b);
-            for (int i = 0; i < Math.max(A.length, B.length); i++) {
+            int[] A = parseVer(a), B = parseVer(b);
+            for(int i = 0; i < Math.max(A.length, B.length); i++) {
                 int ai = i < A.length ? A[i] : 0;
                 int bi = i < B.length ? B[i] : 0;
-                if (ai != bi) return ai > bi;
+                if(ai != bi) return ai > bi;
             }
-            return false; // equal
-        } catch (Exception e) {
+            return false;
+        } catch(Exception e) {
             return a.compareTo(b) > 0;
         }
     }
 
-    private int[] parseVersion(String v) {
+    private static int[] parseVer(String v) {
         String[] parts = v.replaceAll("[^0-9.]", "").split("\\.");
         int[] out = new int[parts.length];
-        for (int i = 0; i < parts.length; i++) out[i] = parts[i].isEmpty()?0:Integer.parseInt(parts[i]);
+        for (int i = 0; i < parts.length; i++)
+            out[i] = parts[i].isEmpty() ? 0 : Integer.parseInt(parts[i]);
         return out;
     }
 
-    private void download(String url, Path dest) throws IOException {
-        log.info("Downloading {} -> {}", url, dest);
+    private static void download(String url, Path dest) throws IOException {
         Request req = new Request.Builder().url(url).build();
-        try (Response resp = http.newCall(req).execute()) {
-            if (!resp.isSuccessful()) throw new IOException("HTTP " + resp.code() + " downloading update");
-            try (InputStream in = Objects.requireNonNull(resp.body()).byteStream();
-                 OutputStream out = Files.newOutputStream(dest, StandardOpenOption.TRUNCATE_EXISTING)) {
-                in.transferTo(out);
+        try(Response resp = http.newCall(req).execute()) {
+            if(!resp.isSuccessful()) throw new IOException("HTTP " + resp.code() + " downloading");
+            long total = Optional.ofNullable(resp.body().contentLength()).orElse(-1L);
+            try(InputStream in = resp.body().byteStream();
+                OutputStream out = Files.newOutputStream(dest, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                byte[] buf = new byte[8192];
+                long read = 0, last = 0;
+                for(int n; (n = in.read(buf)) > 0; ) {
+                    out.write(buf, 0, n);
+                    read += n;
+                    if(total > 0 && read - last > 1000000) {
+                        System.out.println("Progress: " + (int)(100 * read / total) + "%");
+                        last = read;
+                    }
+                }
             }
         }
     }
 
-    private void verifySha256(Path file, String expectedHex) throws IOException {
-        if (expectedHex == null || expectedHex.isBlank()) { log.warn("No sha256 provided; skipping verify"); return; }
-        try (InputStream in = Files.newInputStream(file)) {
-            String actual = DigestUtils.sha256Hex(in);
-            if (!actual.equalsIgnoreCase(expectedHex)) {
-                throw new IOException("Checksum mismatch: expected=" + expectedHex + ", actual=" + actual);
-            }
-            log.info("Checksum OK");
-        }
-    }
-
-    private void extractArchive(Path archive, Path targetDir) throws IOException {
+    private static void extractArchive(Path archive, Path targetDir) throws IOException {
         String name = archive.getFileName().toString().toLowerCase(Locale.ROOT);
-        log.info("Extracting {} -> {}", name, targetDir);
         Files.createDirectories(targetDir);
-        if (name.endsWith(".zip")) {
-            try (ZipFile zf = new ZipFile(archive.toFile())) {
-                Enumeration<ZipArchiveEntry> en = zf.getEntries();
-                while (en.hasMoreElements()) {
+        if(name.endsWith(".zip")) {
+            try(ZipFile zf = new ZipFile(archive.toFile())) {
+                var en = zf.getEntries();
+                while(en.hasMoreElements()) {
                     ZipArchiveEntry e = en.nextElement();
                     Path out = targetDir.resolve(e.getName()).normalize();
                     ensureInside(targetDir, out);
-                    if (e.isDirectory()) {
-                        Files.createDirectories(out);
-                    } else {
+                    if(e.isDirectory()) Files.createDirectories(out);
+                    else {
                         Files.createDirectories(out.getParent());
-                        try (InputStream in = zf.getInputStream(e);
-                             OutputStream os = Files.newOutputStream(out)) {
+                        try(InputStream in = zf.getInputStream(e);
+                            OutputStream os = Files.newOutputStream(out)) {
                             in.transferTo(os);
                         }
                     }
                 }
             }
-        } else if (name.endsWith(".tar.gz") || name.endsWith(".tgz")) {
-            try (InputStream fi = Files.newInputStream(archive);
-                 GzipCompressorInputStream gzi = new GzipCompressorInputStream(fi);
-                 TarArchiveInputStream ti = new TarArchiveInputStream(gzi)) {
+        } else if(name.endsWith(".tar.gz") || name.endsWith(".tgz")) {
+            try(InputStream fi = Files.newInputStream(archive);
+                    GZIPInputStream gzi = new GZIPInputStream(fi);
+                    TarArchiveInputStream ti = new TarArchiveInputStream(gzi)) {
                 TarArchiveEntry e;
-                while ((e = ti.getNextTarEntry()) != null) {
+                while((e = ti.getNextEntry()) != null) {
                     Path out = targetDir.resolve(e.getName()).normalize();
                     ensureInside(targetDir, out);
-                    if (e.isDirectory()) {
-                        Files.createDirectories(out);
-                    } else {
+                    if(e.isDirectory()) Files.createDirectories(out);
+                    else {
                         Files.createDirectories(out.getParent());
-                        try (OutputStream os = Files.newOutputStream(out)) {
+                        try(OutputStream os = Files.newOutputStream(out)) {
                             ti.transferTo(os);
                         }
-                        Files.setPosixFilePermissions(out, EnumSet.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
                     }
                 }
-            } catch (UnsupportedOperationException ignore) {
-                // Windows may not support POSIX perms; ignore
             }
         } else {
-            // plain file -> place into targetDir
-            Path out = targetDir.resolve(name);
-            Files.copy(archive, out, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(archive, targetDir.resolve(name), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    private void ensureInside(Path root, Path out) throws IOException {
-        if (!out.normalize().startsWith(root.normalize())) {
-            throw new IOException("Blocked path traversal: " + out);
+    private static void ensureInside(Path root, Path out) throws IOException {
+        if(!out.normalize().startsWith(root.normalize())) throw new IOException("Blocked path traversal: " + out);
+    }
+
+    private static void writeCurrentVersion(Path dir, String v) throws IOException {
+        Path tmp = dir.resolve(CURRENT_VERSION_FILE + ".tmp");
+        Files.writeString(tmp, v + "\n", StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.move(tmp, dir.resolve(CURRENT_VERSION_FILE),
+                StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    }
+
+    private static final ObjectMapper json = new ObjectMapper().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    private static final String MANIFEST_PUBKEY_B64 = "MCowBQYDK2VwAyEAHRnugxXxycxz+oG4d5CF2RoNFpQ5w0HsElflMkkUX6o=";
+
+    private static void verifySha256(Path file, String expectedHex) throws IOException {
+        if(expectedHex == null || expectedHex.isBlank()) return;
+        try(InputStream in = Files.newInputStream(file)) {
+            String actual = DigestUtils.sha256Hex(in);
+            if(!actual.equalsIgnoreCase(expectedHex)) {
+                throw new IOException("Checksum mismatch: expected=" + expectedHex + ", actual=" + actual);
+            }
+            System.out.println("Checksum OK");
         }
     }
 
-    private void launch(UpdateManifest m, Path installDir) throws IOException {
-        List<String> cmd = new ArrayList<>();
-        if (m.launchCommand != null && !m.launchCommand.isEmpty()) {
-            cmd.addAll(m.launchCommand);
-        } else {
-            // default: java -jar launcher-<version>.jar
-            String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
-            cmd.add(javaBin);
-            cmd.add("-jar");
-            // try to find a launcher jar in installDir (best-effort)
-            try (DirectoryStream<Path> ds = Files.newDirectoryStream(installDir, "launcher-*.jar")) {
-                for (Path p : ds) { cmd.add(p.toAbsolutePath().toString()); break; }
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static final class Manifest {
+        public String version;
+        public String url;
+        public String sha256;
+        public List<String> launchCommand;
+        public String archiveFileName() {
+            if(url == null || url.isBlank()) return "update.bin";
+            try {
+                return Paths.get(new URI(url).getPath()).getFileName().toString();
+            } catch(Exception e) {
+                return url.substring(url.lastIndexOf("/") + 1);
             }
         }
-        log.info("Launching: {}", cmd);
-        new ProcessBuilder(cmd)
-                .directory(installDir.toFile())
-                .inheritIO()
-                .start();
+    }
+
+    private static Manifest fetchManifest(String url) throws IOException {
+        byte[] raw;
+        try(Response r = http.newCall(new Request.Builder().url(url).build()).execute()) {
+            if(!r.isSuccessful()) throw new IOException("HTTP" + r.code() + " fetching manifest");
+            raw = r.body().bytes();
+        }
+        JsonNode tree = json.readTree(raw);
+        if(tree == null) throw new IOException("Empty manifest");
+
+        if(MANIFEST_PUBKEY_B64 != null) {
+            JsonNode sigNode = tree.get("_sig");
+            if(sigNode == null) throw new IOException("Manifest missing _sig");
+            String sigB64 = sigNode.asText("").trim();
+            ((ObjectNode)tree).remove("_sig");
+            byte[] canonical = json.writer().writeValueAsBytes(tree);
+            if(!verifyEd25519(canonical, Base64.getDecoder().decode(sigB64))) {
+                throw new IOException("Manifest signature verification failed");
+            }
+        }
+        return json.treeToValue(tree, Manifest.class);
+    }
+
+    private static boolean verifyEd25519(byte[] data, byte[] sig) {
+        try {
+            byte[] der = Base64.getDecoder().decode(MANIFEST_PUBKEY_B64);
+            var spec = new X509EncodedKeySpec(der);
+            var pk = KeyFactory.getInstance("Ed25519").generatePublic(spec);
+            var ver = Signature.getInstance("Ed25519");
+            ver.initVerify(pk);
+            ver.update(data);
+            return ver.verify(sig);
+        } catch(Exception e) {
+            e.printStackTrace(System.err);
+            return false;
+        }
     }
 }
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-final class UpdateManifest {
-    /** Version string, e.g., 1.2.3 */
-    public String version;
-    /** HTTPS URL of the update archive (zip or tar.gz) */
-    public String url;
-    /** Optional hex SHA-256 of the archive */
-    public String sha256;
-    /** Optional: expected size, bytes */
-    public Long sizeBytes;
-    /** Optional: explicit launch command to run after update */
-    public List<String> launchCommand;
-
-    public String archiveFileName() {
-        if (url == null || url.isBlank()) return "update.bin";
-        try { return Paths.get(new java.net.URI(url).getPath()).getFileName().toString(); }
-        catch (Exception e) { return url.substring(url.lastIndexOf('/') + 1); }
-    }
-}

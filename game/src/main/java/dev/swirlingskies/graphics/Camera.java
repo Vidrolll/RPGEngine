@@ -40,7 +40,9 @@ public class Camera {
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
+        glTranslatef(1920/2f, 1080/2f, 0f);
         glScalef(zoom, zoom, 1f);
+        glTranslatef(-1920/2f, -1080/2f, 0f);
         glRotatef(-rotationDeg, 0f, 0f, 1f);
         glTranslatef(-position.x, -position.y, 0f);
     }

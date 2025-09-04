@@ -10,12 +10,12 @@ import dev.swirlingskies.tile.tiles.TestTile;
 import dev.swirlingskies.util.Input;
 import dev.swirlingskies.util.TaskManager;
 import dev.swirlingskies.util.Time;
-import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import java.util.Objects;
 
+import static dev.swirlingskies.scene.Scene.SCENE_SIZE;
 import static dev.swirlingskies.util.Input.*;
 import static dev.swirlingskies.util.Time.getDeltaTime;
 import static org.lwjgl.glfw.GLFW.*;
@@ -40,17 +40,19 @@ public class Game {
         camera = new Camera();
         scene = new Scene();
 
-        for(int i = 0; i < 512; i++) {
+        camera.setZoom(2f);
+
+        for(int i = 0; i < SCENE_SIZE; i++) {
             scene.addTile(new TestTile(new Vector2i(i,0)));
         }
-        for(int i = 0; i < 512; i++) {
+        for(int i = 0; i < SCENE_SIZE; i++) {
             scene.addTile(new TestTile(new Vector2i(0,i)));
         }
-        for(int i = 0; i < 512; i++) {
-            scene.addTile(new TestTile(new Vector2i(i,511)));
+        for(int i = 0; i < SCENE_SIZE; i++) {
+            scene.addTile(new TestTile(new Vector2i(i,SCENE_SIZE-1)));
         }
-        for(int i = 0; i < 512; i++) {
-            scene.addTile(new TestTile(new Vector2i(511,i)));
+        for(int i = 0; i < SCENE_SIZE; i++) {
+            scene.addTile(new TestTile(new Vector2i(SCENE_SIZE-1,i)));
         }
 
         player = new Player(new Vector2f(50,50),new Vector2f(50,50));
@@ -94,8 +96,8 @@ public class Game {
         camera.getPosition().add(moveVec);
 
         scene.update();
-        controller.input();
         player.update();
+        controller.input();
     }
 
     public void render() {
