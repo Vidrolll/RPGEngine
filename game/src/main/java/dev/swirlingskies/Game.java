@@ -43,16 +43,16 @@ public class Game {
         camera.setZoom(2f);
 
         for(int i = 0; i < SCENE_SIZE; i++) {
-            scene.addTile(new TestTile(new Vector2i(i,0)));
+            scene.addTile(new TestTile(new Vector2i(i,0), scene));
         }
         for(int i = 0; i < SCENE_SIZE; i++) {
-            scene.addTile(new TestTile(new Vector2i(0,i)));
+            scene.addTile(new TestTile(new Vector2i(0,i), scene));
         }
         for(int i = 0; i < SCENE_SIZE; i++) {
-            scene.addTile(new TestTile(new Vector2i(i,SCENE_SIZE-1)));
+            scene.addTile(new TestTile(new Vector2i(i,SCENE_SIZE-1), scene));
         }
         for(int i = 0; i < SCENE_SIZE; i++) {
-            scene.addTile(new TestTile(new Vector2i(SCENE_SIZE-1,i)));
+            scene.addTile(new TestTile(new Vector2i(SCENE_SIZE-1,i), scene));
         }
 
         player = new Player(new Vector2f(50,50),new Vector2f(50,50));

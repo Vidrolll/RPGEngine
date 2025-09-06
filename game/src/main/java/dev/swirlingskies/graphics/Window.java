@@ -24,11 +24,12 @@ public final class Window {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
         logicalW = 1280;
         logicalH = 720;
         long monitor = glfwGetPrimaryMonitor();
         GLFWVidMode vid = glfwGetVideoMode(monitor);
-        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", monitor, NULL);
+        window = glfwCreateWindow(vid.width(), vid.height(), "RPGEngine", NULL, NULL);
         if (window == NULL) throw new RuntimeException("Window creation failed");
         try (MemoryStack stack = MemoryStack.stackPush()) {
             var pW = stack.mallocInt(1);

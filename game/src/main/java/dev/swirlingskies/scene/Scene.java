@@ -51,4 +51,7 @@ public class Scene {
             }
         }
     }
+    public Tile[] getTiles() {
+        return tiles;
+    }
 }

@@ -1,5 +1,6 @@
 package dev.swirlingskies.tile;
 
+import dev.swirlingskies.scene.Scene;
 import org.joml.Vector2i;
 
 public abstract class Tile {
@@ -7,8 +8,11 @@ public abstract class Tile {
 
     protected boolean solid;
 
-    public Tile(Vector2i position) {
+    protected Scene scene;
+
+    public Tile(Vector2i position, Scene scene) {
         this.position = position;
+        this.scene = scene;
     }
 
     public abstract void update();

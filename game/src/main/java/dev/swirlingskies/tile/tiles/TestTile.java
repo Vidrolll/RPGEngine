@@ -1,5 +1,6 @@
 package dev.swirlingskies.tile.tiles;
 
+import dev.swirlingskies.scene.Scene;
 import dev.swirlingskies.tile.Tile;
 import org.joml.Vector2i;
 
@@ -7,8 +8,8 @@ import static dev.swirlingskies.scene.Scene.TILE_SIZE;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TestTile extends Tile {
-    public TestTile(Vector2i position) {
-        super(position);
+    public TestTile(Vector2i position, Scene scene) {
+        super(position,scene);
         solid = true;
     }
 
